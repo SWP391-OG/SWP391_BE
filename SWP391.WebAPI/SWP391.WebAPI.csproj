@@ -4,10 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	 <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	 <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	  <PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.7" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
+	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SWP391.Contracts\SWP391.Contracts.csproj" />
+    <ProjectReference Include="..\SWP391.Services\SWP391.Services.csproj" />
   </ItemGroup>
 
 </Project>

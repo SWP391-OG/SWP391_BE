@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="SWP391.Contracts/SWP391.Contracts.csproj" />
+  <Project Path="SWP391.Repositories/SWP391.Repositories.csproj" />
+  <Project Path="SWP391.Services/SWP391.Services.csproj" />
   <Project Path="SWP391.WebAPI/SWP391.WebAPI.csproj" />
 </Solution>
