@@ -1,0 +1,6 @@
+@SWP391.WebAPI_HostAddress = http://localhost:5056
+
+GET {{SWP391.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
