@@ -5,8 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	</ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SWP391.Contracts\SWP391.Contracts.csproj" />
     <ProjectReference Include="..\SWP391.Repositories\SWP391.Repositories.csproj" />
   </ItemGroup>
 

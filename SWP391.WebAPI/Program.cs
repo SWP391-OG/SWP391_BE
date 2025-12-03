@@ -1,7 +1,16 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SWP391.Repositories;
+using SWP391.Repositories.DBContext;
+using SWP391.Repositories.Interfaces;
+using SWP391.Services.Application;
+using SWP391.Services.Authentication;
+using SWP391.Services.Email;
+using SWP391.Services.JWT;
+using SWP391.WebAPI.Mappings;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,14 +18,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add secret configuration file in development environment
 if (builder.Environment.IsDevelopment())
 {
-    builder.Configuration.AddJsonFile("Secret/appsettings.Secret.json", optional: true, reloadOnChange: true);
+    builder.Configuration.AddJsonFile("Secrets/appsettings.Secret.json", optional: true, reloadOnChange: true);
 }
 
+// Configure DbContext with SQL Server
+builder.Services.AddDbContext<FPTechnicalContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-builder.Services.AddAuthorization();
+
+// Register UnitOfWork
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Register Services
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IApplicationServices, ApplicationServices>();
+
+// Configure AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Configure Authentication with JWT Bearer and Cookie schemes for external providers
 var authBuilder = builder.Services.AddAuthentication(options =>
@@ -55,6 +77,8 @@ var authBuilder = builder.Services.AddAuthentication(options =>
     options.IncludeErrorDetails = true;
 });
 
+builder.Services.AddAuthorization();
+
 // Configure Swagger with JWT Bearer authentication
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -64,7 +88,11 @@ builder.Services.AddSwaggerGen(c =>
     c.CustomSchemaIds(type => type.FullName?.Replace('+', '.') ?? type.Name);
     // Include XML comments
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization using the Bearer scheme. Paste ONLY the token (no 'Bearer ' prefix).",
@@ -101,7 +129,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
-
 
 app.UseHttpsRedirection();
 app.UseRouting();

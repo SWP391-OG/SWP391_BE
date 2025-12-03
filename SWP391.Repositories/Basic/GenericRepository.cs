@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SWP391.Repositories.DBContext;
 
 namespace SWP391.Repositories.Basic
 {
 
     public class GenericRepository<T> where T : class
     {
-        protected FA25_PRN232_SE1717_G1_ElectricVehicleManagementContext _context;
+        protected FPTechnicalContext _context;
 
         public GenericRepository()
         {
-            _context ??= new FA25_PRN232_SE1717_G1_ElectricVehicleManagementContext();
+            _context ??= new FPTechnicalContext();
         }
 
-        public GenericRepository(FA25_PRN232_SE1717_G1_ElectricVehicleManagementContext context)
+        public GenericRepository(FPTechnicalContext context)
         {
             _context = context;
         }

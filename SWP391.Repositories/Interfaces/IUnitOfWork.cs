@@ -1,12 +1,11 @@
-﻿namespace SWP391.Repositories.Interfaces
+﻿using SWP391.Repositories.Repositories;
+
+namespace SWP391.Repositories.Interfaces
 {
     public interface IUnitOfWork
     {
-        //PromotionsQuangNmRepository PromotionsQuangNmRepository { get; }
-        //PromotionUsageQuangNmRepository PromotionUsageQuangNmRepository { get; }
-        //SystemUserAccountRepository SystemUserAccountRepository { get; }
-
-
+        UserRepository UserRepository { get; }
+        VerificationCodeRepository VerificationCodeRepository { get; }
         int SaveChangesWithTransaction();
         Task<int> SaveChangesWithTransactionAsync();
     }

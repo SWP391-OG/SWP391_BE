@@ -19,8 +19,6 @@
 	
   <ItemGroup>
 	<Folder Include="Basic\" />
-    <Folder Include="DBContext\" />
-	<Folder Include="Interfaces\" />
   </ItemGroup>
 
 </Project>

@@ -1,51 +1,47 @@
-﻿using SWP391.Repositories.Interfaces;
+﻿using SWP391.Repositories.DBContext;
+using SWP391.Repositories.Interfaces;
+using SWP391.Repositories.Repositories;
 
 namespace SWP391.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
-        //private readonly FA25_PRN232_SE1717_G1_ElectricVehicleManagementContext _context;
-        //private readonly PromotionUsageQuangNmRepository? _promotionUsageQuangNmRepository;
-        //private readonly PromotionsQuangNmRepository? _promotionsQuangNmRepository;
-        //private readonly SystemUserAccountRepository? _systemUserAccountRepository;
+        private readonly FPTechnicalContext _context;
+        private UserRepository _userRepository;
+        private VerificationCodeRepository _verificationCodeRepository;
 
-        public UnitOfWork()
+        public UnitOfWork(FPTechnicalContext context)
         {
-            //_context ??= new FA25_PRN232_SE1717_G1_ElectricVehicleManagementContext();
+            _context = context;
         }
 
-        //public PromotionsQuangNmRepository PromotionsQuangNmRepository
-        //{
-        //    get { return _promotionsQuangNmRepository ?? new PromotionsQuangNmRepository(_context); }
-        //}
+        public UserRepository UserRepository
+        {
+            get { return _userRepository ??= new UserRepository(_context); }
+        }
 
-        //public PromotionUsageQuangNmRepository PromotionUsageQuangNmRepository
-        //{
-        //    get { return _promotionUsageQuangNmRepository ?? new PromotionUsageQuangNmRepository(_context); }
-        //}
-
-        //public SystemUserAccountRepository SystemUserAccountRepository
-        //{
-        //    get { return _systemUserAccountRepository ?? new SystemUserAccountRepository(_context); }
-        //}
+        public VerificationCodeRepository VerificationCodeRepository
+        {
+            get { return _verificationCodeRepository ??= new VerificationCodeRepository(_context); }
+        }
 
         public int SaveChangesWithTransaction()
         {
             int result = -1;
 
-            //using (var dbContextTransaction = _context.Database.BeginTransaction())
-            //{
-            //    try
-            //    {
-            //        result = _context.SaveChanges();
-            //        dbContextTransaction.Commit();
-            //    }
-            //    catch (Exception)
-            //    {
-            //        result = -1;
-            //        dbContextTransaction.Rollback();
-            //    }
-            //}
+            using (var dbContextTransaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    result = _context.SaveChanges();
+                    dbContextTransaction.Commit();
+                }
+                catch (Exception)
+                {
+                    result = -1;
+                    dbContextTransaction.Rollback();
+                }
+            }
 
             return result;
         }
@@ -54,19 +50,19 @@ namespace SWP391.Repositories
         {
             int result = -1;
 
-            //using (var dbContextTransaction = _context.Database.BeginTransaction())
-            //{
-            //    try
-            //    {
-            //        result = await _context.SaveChangesAsync();
-            //        dbContextTransaction.Commit();
-            //    }
-            //    catch (Exception)
-            //    {
-            //        result = -1;
-            //        dbContextTransaction.Rollback();
-            //    }
-            //}
+            using (var dbContextTransaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    result = await _context.SaveChangesAsync();
+                    dbContextTransaction.Commit();
+                }
+                catch (Exception)
+                {
+                    result = -1;
+                    dbContextTransaction.Rollback();
+                }
+            }
 
             return result;
         }
