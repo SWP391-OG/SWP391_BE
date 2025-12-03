@@ -2,7 +2,7 @@ using AutoMapper;
 using SWP391.Contracts.Authentication;
 using SWP391.Repositories.Models;
 
-namespace SWP391.WebAPI.Mappings
+namespace SWP391.Services.Mappings
 {
     public class MappingProfile : Profile
     {

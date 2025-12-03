@@ -10,7 +10,7 @@ using SWP391.Services.Application;
 using SWP391.Services.Authentication;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
-using SWP391.WebAPI.Mappings;
+using SWP391.Services.Mappings;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
