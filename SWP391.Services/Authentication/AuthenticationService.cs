@@ -6,6 +6,7 @@ using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using System.Security.Cryptography;
 using System.Text;
+using SWP391.Contracts.Common;
 
 namespace SWP391.Services.Authentication
 {

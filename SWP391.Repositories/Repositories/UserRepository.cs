@@ -11,7 +11,7 @@ namespace SWP391.Repositories.Repositories
 
         public UserRepository(FPTechnicalContext context) => _context = context;
 
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Set<User>()
                 .Include(u => u.Role)
@@ -24,7 +24,7 @@ namespace SWP391.Repositories.Repositories
             return await _context.Set<User>().AnyAsync(u => u.Email == email);
         }
 
-        public async Task<User> GetByUserCodeAsync(string userCode)
+        public async Task<User?> GetByUserCodeAsync(string userCode)
         {
             return await _context.Set<User>()
                 .Include(u => u.Role)

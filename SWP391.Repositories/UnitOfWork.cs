@@ -1,4 +1,5 @@
-﻿using SWP391.Repositories.DBContext;
+﻿using Microsoft.EntityFrameworkCore;
+using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Repositories;
 
@@ -8,6 +9,7 @@ namespace SWP391.Repositories
     {
         private readonly FPTechnicalContext _context;
         private UserRepository _userRepository;
+        private LocationRepository _locationRepository;
         private VerificationCodeRepository _verificationCodeRepository;
 
         public UnitOfWork(FPTechnicalContext context)
@@ -15,15 +17,11 @@ namespace SWP391.Repositories
             _context = context;
         }
 
-        public UserRepository UserRepository
-        {
-            get { return _userRepository ??= new UserRepository(_context); }
-        }
-
-        public VerificationCodeRepository VerificationCodeRepository
-        {
-            get { return _verificationCodeRepository ??= new VerificationCodeRepository(_context); }
-        }
+        public UserRepository UserRepository    { get => _userRepository ??= new UserRepository(_context); }
+        
+        public VerificationCodeRepository VerificationCodeRepository { get => _verificationCodeRepository ??= new VerificationCodeRepository(_context); }
+   
+        public LocationRepository LocationRepository { get => _locationRepository ??= new LocationRepository(_context); }
 
         public int SaveChangesWithTransaction()
         {

@@ -11,7 +11,7 @@ namespace SWP391.Repositories.Repositories
 
         public VerificationCodeRepository(FPTechnicalContext context) => _context = context;
 
-        public async Task<VerificationCode> GetValidCodeAsync(string email, string code, string type)
+        public async Task<VerificationCode?> GetValidCodeAsync(string email, string code, string type)
         {
             return await _context.Set<VerificationCode>()
                 .FirstOrDefaultAsync(vc =>

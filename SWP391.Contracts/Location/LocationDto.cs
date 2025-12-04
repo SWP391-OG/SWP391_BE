@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SWP391.Contracts.Location
+{
+    public class LocationDto
+    {
+        public string LocationCode { get; set; } = string.Empty;
+        public string LocationName { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+    }
+
+    public class LocationRequestDto
+    {
+        public string LocationCode { get; set; } = string.Empty;
+        public string LocationName { get; set; } = string.Empty;
+    }
+
+    public class LocationStatusUpdateDto
+    {
+        public string LocationCode { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+    }
+}
