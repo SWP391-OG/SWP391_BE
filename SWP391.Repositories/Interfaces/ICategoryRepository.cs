@@ -1,0 +1,15 @@
+﻿using SWP391.Repositories.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SWP391.Repositories.Interfaces
+{
+    public interface ICategoryRepository
+    {
+        Task<Location?> GetLocationByCodeAsync(string code);
+        Task<Location?> GetLocationByNameAsync(string name);
+    }
+}

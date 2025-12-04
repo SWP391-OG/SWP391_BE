@@ -1,60 +1,59 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SWP391.Contracts;
 using SWP391.Contracts.Authentication;
 using SWP391.Contracts.Common;
-using SWP391.Contracts.Location;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
-
 
 namespace SWP391.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LocationController : ControllerBase
+    public class CategoryController : ControllerBase
     {
         private readonly IApplicationServices _applicationServices;
 
-        public LocationController(IApplicationServices applicationServices)
+        public CategoryController(IApplicationServices applicationServices)
         {
             _applicationServices = applicationServices;
         }
 
         /// <summary>
-        /// Get all room 
+        /// Get all category 
         /// </summary>
-        [HttpGet("/api/Locations")]
-        public async Task<IActionResult> GetAllLocationCode()
+        [HttpGet("/api/Category")]
+        public async Task<IActionResult> GetAllCategory()
         {
-            var locations = await _applicationServices.LocationService.GetAllLocationsAsync();
-            if (locations == null)
+            var categories = await _applicationServices.CategoryService.GetAllCategoryAsync();
+            if (categories == null)
             {
                 return NotFound();
             }
-            return Ok(locations);
+            return Ok(categories);
         }
 
         /// <summary>
-        /// Get room by code
+        /// Get category by code
         /// </summary>
-        [HttpGet("{locationCode}")]
-        public async Task<IActionResult> GetByLocationCode(string locationCode)
+        [HttpGet("{categoryCode}")]
+        public async Task<IActionResult> GetByCategoryCode(string categoryCode)
         {
-            var locations = await _applicationServices.LocationService.GetByLocationCodeAsync(locationCode);
-            if (locations == null)
+            var category = await _applicationServices.CategoryService.GetByCategoryCodeAsync(categoryCode);
+            if (category == null)
             {
                 return NotFound();
             }
-            return Ok(locations);
+            return Ok(category);
         }
 
         /// <summary>
-        /// Create room 
+        /// Create category 
         /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        public async Task<IActionResult> CreateLocation(LocationRequestDto dto)
+        public async Task<IActionResult> CreateCategory(CategoryRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -64,24 +63,24 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message, data) = await _applicationServices
-                 .LocationService.CreateLocationAsync(dto);
+                 .CategoryService.CreateCategoryAsync(dto);
 
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
             }
 
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(data, message));
+            return Ok(ApiResponse<CategoryDto>.SuccessResponse(data, message));
         }
 
 
         /// <summary>
-        /// Update room 
+        /// Update category 
         /// </summary>
         [HttpPut]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        public async Task<IActionResult> UpdateLocation([FromBody] LocationRequestDto dto)
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryRequestDto dto)
         {
 
             if (!ModelState.IsValid)
@@ -91,27 +90,27 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
 
-            var locations = await _applicationServices.LocationService.UpdateLocationAsync(dto);
+            var category = await _applicationServices.CategoryService.UpdateCategoryAsync(dto);
 
             var (success, message) = await _applicationServices
-               .LocationService.UpdateLocationAsync(dto);
+               .CategoryService.UpdateCategoryAsync(dto);
 
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
             }
 
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
-         
+            return Ok(ApiResponse<CategoryDto>.SuccessResponse(null, message));
+
         }
 
         /// <summary>
-        /// Update room status
+        /// Update category status
         /// </summary>
         [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        public async Task<IActionResult> UpdateLocationStatus([FromBody] LocationStatusUpdateDto dto)
+        public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -120,23 +119,23 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .LocationService.UpdateStatusLocationAsync(dto);
+                .CategoryService.UpdateStatusCategoryAsync(dto);
 
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
             }
 
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
+            return Ok(ApiResponse<CategoryDto>.SuccessResponse(null, message));
         }
 
         /// <summary>
-        /// Update room status
+        /// Delete category status
         /// </summary>
         [HttpDelete]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        public async Task<IActionResult> DeleteLocationByCode([FromQuery] string locationCode)
+        public async Task<IActionResult> DeleteCategoryByCode([FromQuery] string categoryCode)
         {
             if (!ModelState.IsValid)
             {
@@ -145,14 +144,12 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .LocationService.DeleteLocationByCodeAsync(locationCode);
+                .CategoryService.DeleteCategoryByCodeAsync(categoryCode);
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
             }
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
+            return Ok(ApiResponse<CategoryDto>.SuccessResponse(null, message));
         }
-
-
     }
 }

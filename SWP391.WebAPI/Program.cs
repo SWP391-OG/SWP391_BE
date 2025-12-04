@@ -8,6 +8,8 @@ using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Services.Application;
 using SWP391.Services.Authentication;
+using SWP391.Services.Category;
+using SWP391.Services.CategoryServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
@@ -42,6 +44,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IApplicationServices, ApplicationServices>();
 builder.Services.AddScoped<ILocationService, LocationService>();    
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
