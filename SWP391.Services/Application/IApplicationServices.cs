@@ -1,5 +1,5 @@
 using SWP391.Services.Authentication;
-using SWP391.Services.Category;
+using SWP391.Services.CategoryServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;

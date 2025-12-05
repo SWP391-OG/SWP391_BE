@@ -1,10 +1,4 @@
-﻿using SWP391.Repositories.Basic;
-using SWP391.Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SWP391.Repositories.Models;
 
 namespace SWP391.Repositories.Interfaces
 {

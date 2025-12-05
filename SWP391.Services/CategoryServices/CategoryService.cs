@@ -2,13 +2,7 @@
 using SWP391.Contracts;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
-using SWP391.Repositories.Repositories;
-using SWP391.Services.CategoryService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SWP391.Services.CategoryServices
 {
@@ -24,7 +18,7 @@ namespace SWP391.Services.CategoryServices
         }
         public async Task<(bool Success, string Message, CategoryDto Data)> CreateCategoryAsync(CategoryRequestDto dto)
         {
-            var existingCode = await _unitOfWork.CategoryRepository.GetCatgoryByCodeAsync(dto.CategoryCode);
+            var existingCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
             if (existingCode != null)
                 return (false, "Category code already exists", null);
 
@@ -40,7 +34,7 @@ namespace SWP391.Services.CategoryServices
 
         public async Task<(bool Success, string Message)> DeleteCategoryByCodeAsync(string categoryCode)
         {
-            var existingCode = await _unitOfWork.CategoryRepository.GetCatgoryByCodeAsync(categoryCode);
+            var existingCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(categoryCode);
             if (existingCode == null)
                 return (false, "Category code doesn't exists");
             await _unitOfWork.CategoryRepository.RemoveAsync(existingCode);
@@ -50,23 +44,16 @@ namespace SWP391.Services.CategoryServices
         public async Task<List<CategoryDto>> GetAllCategoryAsync()
         {
             var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
-            var exis = new List<CategoryDto>();
-            CategoryDto existCategory;
-            foreach (var category in categories)
-            {
-                existCategory = _mapper.Map<CategoryDto>(categories);
-                exis.Add(existCategory);
-            }
-            return exis;
+            return _mapper.Map<List<CategoryDto>>(categories);
         }
 
-        public async  Task<CategoryDto> GetByCategoryCodeAsync(string categoryCode)
-        => await _unitOfWork.CategoryRepository.GetCatgoryByCodeAsync(categoryCode)
+        public async Task<CategoryDto> GetByCategoryCodeAsync(string categoryCode)
+        => await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(categoryCode)
                 .ContinueWith(task => _mapper.Map<CategoryDto>(task.Result));
 
         public async Task<(bool Success, string Message)> UpdateCategoryAsync(CategoryRequestDto dto)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCatgoryByCodeAsync(dto.CategoryCode);
+            var category = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
             if (category == null)
             {
                 return (false, "Category not found");
@@ -83,7 +70,7 @@ namespace SWP391.Services.CategoryServices
 
         public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(CategoryStatusUpdateDto dto)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCatgoryByCodeAsync(dto.CategoryCode);
+            var category = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
 
 
             if (category == null)

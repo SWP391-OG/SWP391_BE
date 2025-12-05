@@ -1,12 +1,6 @@
 ﻿using SWP391.Contracts;
-using SWP391.Contracts.Location;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SWP391.Services.CategoryService
+namespace SWP391.Services.CategoryServices
 {
     public interface ICategoryService
     {

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Authentication;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.Location;
@@ -102,11 +101,11 @@ namespace SWP391.WebAPI.Controllers
             }
 
             return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
-         
+
         }
 
         /// <summary>
-        /// Update room status
+        /// Update Location Status (ACTIVE or INACTIVE)
         /// </summary>
         [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<AuthResponseDto>), ApiStatusCode.OK)]

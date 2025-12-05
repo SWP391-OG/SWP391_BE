@@ -2,7 +2,7 @@ namespace SWP391.Contracts.Common
 {
     public class ApiResponse<T>
     {
-        public bool Success { get; set; }
+        public bool Status { get; set; }
         public string Message { get; set; }
         public T Data { get; set; }
         public List<string> Errors { get; set; }
@@ -16,7 +16,7 @@ namespace SWP391.Contracts.Common
         {
             return new ApiResponse<T>
             {
-                Success = true,
+                Status = true,
                 Message = message,
                 Data = data
             };
@@ -26,7 +26,7 @@ namespace SWP391.Contracts.Common
         {
             return new ApiResponse<T>
             {
-                Success = false,
+                Status = false,
                 Message = message,
                 Errors = errors ?? new List<string>()
             };
