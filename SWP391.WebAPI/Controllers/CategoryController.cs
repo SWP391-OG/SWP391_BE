@@ -119,7 +119,7 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update category status
+        /// Update category status (ACTIVE or INACTIVE)
         /// </summary>
         /// <param name="dto">Update Category Status (ACTIVE or INACTIVE)</param>
         /// <response code="200">Category status updated successfully.</response>

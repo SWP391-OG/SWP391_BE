@@ -25,14 +25,13 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.RoleId, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
-            CreateMap<Location, LocationDto>()
-                .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.LocationCode))
-                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.LocationName))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
+            // Simplified - AutoMapper handles matching property names automatically
+            CreateMap<Location, LocationDto>();
 
             CreateMap<LocationRequestDto, Location>()
-                .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.LocationCode))
-                .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.LocationName));
+                .ForMember(dest => dest.Id, opt => opt.Ignore())  // Database-generated
+                .ForMember(dest => dest.Status, opt => opt.Ignore())  // Set by service
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());  // Set by service
 
             CreateMap<Category, CategoryDto>();
             CreateMap<CategoryRequestDto, Category>()

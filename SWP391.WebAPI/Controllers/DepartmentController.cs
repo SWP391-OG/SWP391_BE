@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SWP391.Contracts;
-using SWP391.Contracts.Authentication;
+﻿using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
-using SWP391.Repositories.Models;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
 
@@ -31,14 +27,14 @@ namespace SWP391.WebAPI.Controllers
         public async Task<IActionResult> GetAllDepartmentCode()
         {
             var departments = await _applicationServices.DepartmentService.GetAllDepartmentsAsync();
-            
+
             if (departments == null || !departments.Any())
             {
                 return NotFound(ApiResponse<object>.ErrorResponse("No department found"));
             }
 
             return Ok(ApiResponse<List<DepartmentDto>>.SuccessResponse(departments, "Department retrieved successfully"));
-           
+
         }
 
         /// <summary>
@@ -135,7 +131,7 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update department status
+        /// Update department status (ACTIVE or INACTIVE)
         /// </summary>
         [HttpDelete]
         [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
