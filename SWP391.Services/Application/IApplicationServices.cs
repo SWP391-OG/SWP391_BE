@@ -1,4 +1,6 @@
 using SWP391.Services.Authentication;
+
+using SWP391.Services.DepartmentServices;
 using SWP391.Services.CategoryServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
@@ -13,6 +15,6 @@ namespace SWP391.Services.Application
         IJwtService JwtService { get; }
         ILocationService LocationService { get; }
         ICategoryService CategoryService { get; }
-
+        IDepartmentService DepartmentService { get; }
     }
 }

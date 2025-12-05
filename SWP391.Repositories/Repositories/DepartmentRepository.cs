@@ -16,5 +16,17 @@ namespace SWP391.Repositories.Repositories
         public DepartmentRepository() => _context ??= new FPTechnicalContext();
 
         public DepartmentRepository(FPTechnicalContext context) => _context = context;
+
+        public async Task<Department?> GetDepartmentByCodeAsync(string code)
+        {
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DeptCode == code);
+            return department;
+        }
+
+        public async Task<Department?> GetDepartmentByNameAsync(string name)
+        {
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.DeptName == name);
+            return department;
+        }
     }
 }
