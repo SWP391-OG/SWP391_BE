@@ -4,6 +4,7 @@ using SWP391.Services.CategoryServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
+using SWP391.Services.RoleServices;
 
 namespace SWP391.Services.Application
 {
@@ -15,13 +16,15 @@ namespace SWP391.Services.Application
         public ILocationService LocationService { get; }
         public ICategoryService CategoryService { get; }
         public IDepartmentService DepartmentService {  get; }
+        public IRoleService RoleService { get; }
         public ApplicationServices(
             IAuthenticationService authenticationService,
             IEmailService emailService,
             IJwtService jwtService,
             ILocationService locationService,
             ICategoryService categoryService,
-            IDepartmentService departmentService)
+            IDepartmentService departmentService,
+            IRoleService roleService)
         {
             AuthenticationService = authenticationService;
             EmailService = emailService;
@@ -29,6 +32,7 @@ namespace SWP391.Services.Application
             LocationService = locationService;
             CategoryService = categoryService;
             DepartmentService = departmentService;
+            RoleService = roleService;
         }
     }
 }

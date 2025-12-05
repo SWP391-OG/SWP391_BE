@@ -14,6 +14,7 @@ using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
 using SWP391.Services.Mappings;
+using SWP391.Services.RoleServices;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,7 @@ builder.Services.AddScoped<IApplicationServices, ApplicationServices>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IRoleService,RoleService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

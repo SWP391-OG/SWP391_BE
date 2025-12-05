@@ -5,6 +5,7 @@ using SWP391.Services.CategoryServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
+using SWP391.Services.RoleServices;
 
 namespace SWP391.Services.Application
 {
@@ -16,5 +17,6 @@ namespace SWP391.Services.Application
         ILocationService LocationService { get; }
         ICategoryService CategoryService { get; }
         IDepartmentService DepartmentService { get; }
+        IRoleService RoleService { get; }
     }
 }

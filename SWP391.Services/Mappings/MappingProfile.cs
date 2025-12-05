@@ -47,6 +47,9 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Categories, opt => opt.Ignore())
                 .ForMember(dest => dest.Users, opt => opt.Ignore());
+
+            CreateMap<Role, RoleDto>();
+               
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SWP391.Contracts.Location;
+﻿using SWP391.Contracts;
+using SWP391.Contracts.Location;
 using SWP391.Repositories.Models;
 using System;
 using System.Collections.Generic;
@@ -10,10 +11,10 @@ namespace SWP391.Services.RoleServices
 {
     public interface IRoleService
     {
-        Task<List<Role>> GetAllRolesAsync();
-        Task<Role> GetRoleByNameAsync(string roleName);
-        Task<(bool Success, string Message, Role Data)> CreateRoleAsync(Role role);
-        Task<(bool Success, string Message)> UpdateRoleAsync(Role role);
+        Task<List<RoleDto>> GetAllRolesAsync();
+        Task<RoleDto> GetRoleByNameAsync(string roleName);
+        Task<(bool Success, string Message, RoleDto Data)> CreateRoleAsync(string roleName);
+        Task<(bool Success, string Message)> UpdateRoleAsync(RoleDto role);
         Task<(bool Success, string Message)> DeleteRoleAsync(int id);
     }
 }
