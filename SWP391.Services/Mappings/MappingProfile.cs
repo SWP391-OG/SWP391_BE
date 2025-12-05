@@ -1,6 +1,7 @@
 using AutoMapper;
 using SWP391.Contracts;
 using SWP391.Contracts.Authentication;
+using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
 using SWP391.Repositories.Models;
 
@@ -40,6 +41,13 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.Department, opt => opt.Ignore())
                 .ForMember(dest => dest.Tickets, opt => opt.Ignore());
 
+            CreateMap<Department, DepartmentDto>();
+            CreateMap<DepartmentRequestDto, Department>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Categories, opt => opt.Ignore())
+                .ForMember(dest => dest.Users, opt => opt.Ignore());
         }
     }
 }
