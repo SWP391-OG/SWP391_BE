@@ -1,4 +1,5 @@
-﻿using SWP391.Repositories.Basic;
+﻿using Microsoft.EntityFrameworkCore;
+using SWP391.Repositories.Basic;
 using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
@@ -15,5 +16,11 @@ namespace SWP391.Repositories.Repositories
         public RoleRepository() => _context ??= new FPTechnicalContext();
 
         public RoleRepository(FPTechnicalContext context) => _context = context;
+
+        public async Task<Role?> GetRoleByNameAsync(string name)
+        {
+            var role = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == name);
+            return role;
+        }
     }
 }
