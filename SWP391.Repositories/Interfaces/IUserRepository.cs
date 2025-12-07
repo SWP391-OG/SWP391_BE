@@ -1,9 +1,4 @@
 ﻿using SWP391.Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWP391.Repositories.Interfaces
 {
@@ -12,5 +7,10 @@ namespace SWP391.Repositories.Interfaces
         Task<User?> GetByEmailAsync(string email);
         Task<bool> EmailExistsAsync(string email);
         Task<User?> GetByUserCodeAsync(string userCode);
+        
+        // Inherited from GenericRepository (make sure these are available):
+        // Task<User?> GetByIdAsync(int id);
+        // Task<int> CreateAsync(User entity);
+        // Task<int> UpdateAsync(User entity);
     }
 }

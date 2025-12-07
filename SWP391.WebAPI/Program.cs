@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SWP391.Contracts.Common;
 using SWP391.Repositories;
 using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
@@ -15,6 +16,8 @@ using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
 using SWP391.Services.Mappings;
 using SWP391.Services.RoleServices;
+using SWP391.Services.TicketServices;
+using SWP391.WebAPI.Constants;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +51,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -84,6 +88,33 @@ var authBuilder = builder.Services.AddAuthentication(options =>
         ValidAudience = audience,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromSeconds(30)
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = context =>
+        {
+            // Skip the default behavior
+            context.HandleResponse();
+
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            var response = ApiResponse<object>.ErrorResponse(
+                ApiMessages.INVALID_USER_AUTHENTICATION);
+
+            return context.Response.WriteAsJsonAsync(response);
+        },
+        OnForbidden = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json";
+
+            var response = ApiResponse<object>.ErrorResponse(
+                ApiMessages.UNAUTHORIZED_ACCESS);
+
+            return context.Response.WriteAsJsonAsync(response);
+        }
     };
 
     options.IncludeErrorDetails = true;

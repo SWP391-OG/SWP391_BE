@@ -1,12 +1,8 @@
-﻿using SWP391.Repositories.Basic;
+﻿using Microsoft.EntityFrameworkCore;
+using SWP391.Repositories.Basic;
 using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWP391.Repositories.Repositories
 {
@@ -15,6 +11,305 @@ namespace SWP391.Repositories.Repositories
         public TicketRepository() => _context ??= new FPTechnicalContext();
 
         public TicketRepository(FPTechnicalContext context) => _context = context;
-    }
 
+        public async Task<Ticket?> GetTicketByCodeAsync(string ticketCode)
+        {
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.ManagedByNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.TicketCode == ticketCode);
+        }
+
+        #region Pagination Methods
+
+        /// <summary>
+        /// Get all tickets with pagination and filtering (Admin)
+        /// </summary>
+        public async Task<(List<Ticket> Items, int TotalCount)> GetAllTicketsWithPaginationAsync(
+            int pageNumber,
+            int pageSize,
+            string? ticketCode,
+            string? status,
+            string? priority)
+        {
+            var query = _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.ManagedByNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .AsQueryable();
+
+            query = ApplyFilters(query, ticketCode, status, priority);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        /// <summary>
+        /// Get student's tickets with pagination (Student view)
+        /// </summary>
+        public async Task<(List<Ticket> Items, int TotalCount)> GetTicketsByRequesterIdWithPaginationAsync(
+            int requesterId,
+            int pageNumber,
+            int pageSize,
+            string? ticketCode,
+            string? status,
+            string? priority)
+        {
+            var query = _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.RequesterId == requesterId)
+                .AsQueryable();
+
+            query = ApplyFilters(query, ticketCode, status, priority);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        /// <summary>
+        /// Get staff's assigned tickets with pagination (Staff view)
+        /// </summary>
+        public async Task<(List<Ticket> Items, int TotalCount)> GetTicketsByAssignedToWithPaginationAsync(
+            int staffId,
+            int pageNumber,
+            int pageSize,
+            string? ticketCode,
+            string? status,
+            string? priority)
+        {
+            var query = _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)  
+                .Include(t => t.ManagedByNavigation)    
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.AssignedTo == staffId)
+                .AsQueryable();
+
+            query = ApplyFilters(query, ticketCode, status, priority);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        #endregion
+
+        #region Legacy Methods (Backward Compatibility)
+
+        public async Task<List<Ticket>> GetAllTicketsAsync()
+        {
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.ManagedByNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Ticket>> GetTicketsByRequesterIdAsync(int requesterId)
+        {
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.RequesterId == requesterId)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Ticket>> GetTicketsByAssignedToAsync(int staffId)
+        {
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.AssignedTo == staffId)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<List<Ticket>> GetTicketsByStatusAsync(string status)
+        {
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.Status == status)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
+        }
+
+        #endregion
+
+        #region Other Methods
+
+        public async Task<int> GetActiveTicketCountByStaffIdAsync(int staffId)
+        {
+            return await _context.Tickets
+                .Where(t => t.AssignedTo == staffId &&
+                           (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
+                .CountAsync();
+        }
+
+        public async Task<List<(string StaffCode, string StaffName, int ActiveTicketCount, string DepartmentCode)>>
+            GetStaffWorkloadByDepartmentCodeAsync(string deptCode)
+        {
+            var staffWorkload = await _context.Users
+                .Where(u => u.Department.DeptCode == deptCode &&
+                           u.Status == "ACTIVE" &&
+                           u.Role.RoleName == "Staff")
+                .Select(u => new
+                {
+                    StaffCode = u.UserCode,
+                    StaffName = u.FullName,
+                    ActiveTicketCount = u.TicketAssignedToNavigations
+                        .Count(t => t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"),
+                    DepartmentCode = u.Department.DeptCode
+                })
+                .ToListAsync();
+
+            return staffWorkload
+                .Select(s => (s.StaffCode, s.StaffName, s.ActiveTicketCount, s.DepartmentCode))
+                .ToList();
+        }
+
+        public async Task<bool> HasUserProvidedFeedbackAsync(string ticketCode)
+        {
+            var ticket = await _context.Tickets
+                .FirstOrDefaultAsync(t => t.TicketCode == ticketCode);
+
+            return ticket?.RatingStars.HasValue ?? false;
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Apply filters: TicketCode, Status, Priority (same for all roles)
+        /// </summary>
+        private IQueryable<Ticket> ApplyFilters(
+            IQueryable<Ticket> query,
+            string? ticketCode,
+            string? status,
+            string? priority)
+        {
+            // Ticket Code filter (partial match)
+            if (!string.IsNullOrWhiteSpace(ticketCode))
+            {
+                query = query.Where(t => t.TicketCode.ToLower().Contains(ticketCode.ToLower()));
+            }
+
+            // Status filter
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                query = query.Where(t => t.Status == status.ToUpper());
+            }
+
+            // Priority filter
+            if (!string.IsNullOrWhiteSpace(priority))
+            {
+                query = query.Where(t => t.Priority == priority.ToUpper());
+            }
+
+            return query;
+        }
+
+        #endregion
+
+        #region Overdue & Duplicate Detection
+
+        /// <summary>
+        /// Get all overdue tickets (ResolveDeadline passed and status is ASSIGNED or IN_PROGRESS)
+        /// </summary>
+        public async Task<List<Ticket>> GetOverdueTicketsAsync()
+        {
+            var now = DateTime.UtcNow;
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.ManagedByNavigation)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.ResolveDeadline.HasValue && 
+                            t.ResolveDeadline.Value < now &&
+                            (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
+                .OrderBy(t => t.ResolveDeadline)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Get overdue tickets assigned to a specific staff member
+        /// </summary>
+        public async Task<List<Ticket>> GetOverdueTicketsByStaffIdAsync(int staffId)
+        {
+            var now = DateTime.UtcNow;
+            return await _context.Tickets
+                .Include(t => t.Requester)
+                .Include(t => t.Location)
+                .Include(t => t.Category)
+                .Where(t => t.AssignedTo == staffId &&
+                            t.ResolveDeadline.HasValue && 
+                            t.ResolveDeadline.Value < now &&
+                            (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
+                .OrderBy(t => t.ResolveDeadline)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Check for potential duplicate tickets (same requester, similar title, same category, created recently)
+        /// </summary>
+        public async Task<List<Ticket>> CheckForDuplicateTicketsAsync(
+            int requesterId, 
+            string title, 
+            int categoryId, 
+            DateTime createdAfter)
+        {
+            return await _context.Tickets
+                .Include(t => t.Category)
+                .Include(t => t.Location)
+                .Where(t => t.RequesterId == requesterId &&
+                            t.CategoryId == categoryId &&
+                            t.Title.ToLower().Contains(title.ToLower()) &&
+                            t.CreatedAt >= createdAfter &&
+                            t.Status != "CANCELLED" &&
+                            t.Status != "CLOSED")
+                .ToListAsync();
+        }
+
+        #endregion
+    }
 }

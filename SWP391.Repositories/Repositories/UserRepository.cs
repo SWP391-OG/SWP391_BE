@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SWP391.Repositories.Basic;
 using SWP391.Repositories.DBContext;
+using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
 
 namespace SWP391.Repositories.Repositories
 {
-    public class UserRepository : GenericRepository<User>
+    public class UserRepository : GenericRepository<User>, IUserRepository
     {
         public UserRepository() => _context ??= new FPTechnicalContext();
 
