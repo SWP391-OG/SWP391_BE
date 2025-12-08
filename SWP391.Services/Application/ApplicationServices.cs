@@ -6,6 +6,7 @@ using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
+using SWP391.Services.UserServices;
 
 namespace SWP391.Services.Application
 {
@@ -19,6 +20,8 @@ namespace SWP391.Services.Application
         public IDepartmentService DepartmentService {  get; }
         public IRoleService RoleService { get; }
         public ITicketService TicketService { get; set; }
+        public IUserService UserService { get; }
+
         public ApplicationServices(
             IAuthenticationService authenticationService,
             IEmailService emailService,
@@ -27,7 +30,8 @@ namespace SWP391.Services.Application
             ICategoryService categoryService,
             IDepartmentService departmentService,
             IRoleService roleService,
-            ITicketService ticketService)
+            ITicketService ticketService,
+            IUserService userService)
         {
             AuthenticationService = authenticationService;
             EmailService = emailService;
@@ -37,6 +41,7 @@ namespace SWP391.Services.Application
             DepartmentService = departmentService;
             RoleService = roleService;
             TicketService = ticketService;
+            UserService = userService;
         }
     }
 }

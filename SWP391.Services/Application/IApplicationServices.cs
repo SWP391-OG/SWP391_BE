@@ -7,6 +7,7 @@ using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
+using SWP391.Services.UserServices;
 
 namespace SWP391.Services.Application
 {
@@ -20,5 +21,6 @@ namespace SWP391.Services.Application
         IDepartmentService DepartmentService { get; }
         IRoleService RoleService { get; }
         ITicketService TicketService { get; }
+        IUserService UserService { get; }
     }
 }

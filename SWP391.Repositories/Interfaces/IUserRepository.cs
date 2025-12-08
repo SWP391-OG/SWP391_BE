@@ -7,7 +7,7 @@ namespace SWP391.Repositories.Interfaces
         Task<User?> GetByEmailAsync(string email);
         Task<bool> EmailExistsAsync(string email);
         Task<User?> GetByUserCodeAsync(string userCode);
-        
+
         // Inherited from GenericRepository (make sure these are available):
         // Task<User?> GetByIdAsync(int id);
         // Task<int> CreateAsync(User entity);

@@ -17,6 +17,7 @@ using SWP391.Services.LocationServices;
 using SWP391.Services.Mappings;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
+using SWP391.Services.UserServices;
 using SWP391.WebAPI.Constants;
 using System.Text;
 
@@ -52,6 +53,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IRoleService,RoleService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -4,6 +4,7 @@ using SWP391.Contracts.Authentication;
 using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
 using SWP391.Contracts.Ticket;
+using SWP391.Contracts.User;
 using SWP391.Repositories.Models;
 
 namespace SWP391.Services.Mappings
@@ -25,6 +26,15 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.Status, opt => opt.Ignore())
                 .ForMember(dest => dest.RoleId, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+
+            // User to UserDto mapping
+            CreateMap<User, UserDto>();
+            CreateMap<UserDto, User>()
+                .ForMember(dest => dest.Department, opt => opt.Ignore())
+                .ForMember(dest => dest.Role, opt => opt.Ignore())
+                .ForMember(dest => dest.TicketAssignedToNavigations, opt => opt.Ignore())
+                .ForMember(dest => dest.TicketManagedByNavigations, opt => opt.Ignore())
+                .ForMember(dest => dest.TicketRequesters, opt => opt.Ignore());
 
             // Simplified - AutoMapper handles matching property names automatically
             CreateMap<Location, LocationDto>();
@@ -63,6 +73,8 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Location.LocationName))
                 .ForMember(dest => dest.CategoryCode, opt => opt.MapFrom(src => src.Category.CategoryCode))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName));
+
+            CreateMap<User, UserProfileDto>();
         }
     }
 }
