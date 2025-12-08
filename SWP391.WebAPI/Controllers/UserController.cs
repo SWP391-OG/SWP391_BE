@@ -48,6 +48,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _applicationServices.UserService.GetAllUsersAsync();
@@ -75,6 +76,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Student,Staff")]
         public async Task<IActionResult> GetProfileByUseCode()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -91,7 +93,7 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update user profile  
         /// </summary>
-        /// <param name="id">The user ID</param>
+        /// <param name="userDto">The user ID</param>
         /// <response code="200">Returns the user.</response>
         /// <response code="400">Invalid user ID.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
@@ -103,6 +105,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Student,Staff")]
         public async Task<IActionResult> UpdateUserProfile(UserUpdateProfileDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -120,71 +123,6 @@ namespace SWP391.WebAPI.Controllers
             return Ok(ApiResponse<UserProfileDto>.SuccessResponse(null, "User retrieved successfully"));
         }
 
-
-        /// <summary>
-        /// Get user by email
-        /// </summary>
-        /// <param name="email">The user email</param>
-        /// <response code="200">Returns the user.</response>
-        /// <response code="400">Invalid email.</response>
-        /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Only admins can access this.</response>
-        /// <response code="404">User not found.</response>
-        [HttpGet("{email}")]
-        [ProducesResponseType(typeof(ApiResponse<UserDto>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        public async Task<IActionResult> GetUserByEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Email cannot be empty"));
-            }
-
-            var user = await _applicationServices.UserService.GetUserByEmailAsync(email);
-
-            if (user == null)
-            {
-                return NotFound(ApiResponse<object>.ErrorResponse("User not found"));
-            }
-
-            return Ok(ApiResponse<UserDto>.SuccessResponse(user, "User retrieved successfully"));
-        }
-
-        /// <summary>
-        /// Get user by user code (Admin only)
-        /// </summary>
-        /// <param name="userCode">The user code</param>
-        /// <response code="200">Returns the user.</response>
-        /// <response code="400">Invalid user code.</response>
-        /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Only admins can access this.</response>
-        /// <response code="404">User not found.</response>
-        [HttpGet("{userCode}")]
-        [ProducesResponseType(typeof(ApiResponse<UserDto>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        public async Task<IActionResult> GetUserByUserCode(string userCode)
-        {
-            if (string.IsNullOrWhiteSpace(userCode))
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse("User code cannot be empty"));
-            }
-
-            var user = await _applicationServices.UserService.GetUserByUserCodeAsync(userCode);
-
-            if (user == null)
-            {
-                return NotFound(ApiResponse<object>.ErrorResponse("User not found"));
-            }
-
-            return Ok(ApiResponse<UserDto>.SuccessResponse(user, "User retrieved successfully"));
-        }
-
         /// <summary>
         /// Create a new user 
         /// </summary>
@@ -198,6 +136,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -233,6 +172,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]    
         public async Task<IActionResult> UpdateUser( string userCode,[FromBody] UserUpdateDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -271,6 +211,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string code)
         {
             if (code == null)
