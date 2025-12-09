@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts;
 using SWP391.Contracts.Common;
@@ -21,13 +22,17 @@ namespace SWP391.WebAPI.Controllers
 
 
         /// <summary>
-        /// Get all roles
+        /// Get all roles 
         /// </summary>
-        /// <response code="200">Returns all roles.</response>
-        /// <response code="404">No roles found.</response>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<Role>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllRole()
         {
             var roles = await _applicationServices.RoleService.GetAllRolesAsync();
@@ -41,14 +46,17 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get roles by name
+        /// Get all rooms 
         /// </summary>
-        /// <param name="roleName">The role code to search for</param>
-        /// <response code="200">Returns the role.</response>
-        /// <response code="404">Role not found.</response>
+        /// <param name="roleName" >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpGet("{roleName}")]
         [ProducesResponseType(typeof(ApiResponse<Role>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetByRoleName(string roleName)
         {
             var role = await _applicationServices.RoleService.GetRoleByNameAsync(roleName);
@@ -62,14 +70,17 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Create a new role
+        /// Get all rooms 
         /// </summary>
-        /// <param name="dto">Role creation data</param>
-        /// <response code="201">Role created successfully.</response>
-        /// <response code="400">Invalid request data or business rule violation.</response>
+        /// <param name="roleName" >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<Role>), ApiStatusCode.CREATED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateRole([FromBody] string roleName)
         {
             if (!ModelState.IsValid)
@@ -91,16 +102,18 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing Role
+        /// Get all rooms 
         /// </summary>
-        /// <param name="role">Role update data</param>
-        /// <response code="200">Role updated successfully.</response>
-        /// <response code="400">Invalid request data or business rule violation.</response>
-        /// <response code="404">Role not found.</response>
+        /// <param name="role" >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpPut]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateRole([FromBody] RoleDto role)
         {
             if (!ModelState.IsValid)
@@ -122,16 +135,18 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete a role by code
+        /// Get all rooms 
         /// </summary>
-        /// <param name="categoryCode">The role code to delete</param>
-        /// <response code="200">Role deleted successfully.</response>
-        /// <response code="400">Invalid request or business rule violation.</response>
-        /// <response code="404">Role not found.</response>
+        /// <param name="roleId" >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpDelete]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteRole([FromQuery] int roleId)
         {
             var (success, message) = await _applicationServices

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts;
 using SWP391.Contracts.Common;
 using SWP391.Services.Application;
@@ -25,6 +26,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<CategoryDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> GetAllCategory()
         {
             var categories = await _applicationServices.CategoryService.GetAllCategoryAsync();
@@ -46,6 +48,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpGet("{categoryCode}")]
         [ProducesResponseType(typeof(ApiResponse<CategoryDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> GetByCategoryCode(string categoryCode)
         {
             var category = await _applicationServices.CategoryService.GetByCategoryCodeAsync(categoryCode);
@@ -67,6 +70,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<CategoryDto>), ApiStatusCode.CREATED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -98,6 +102,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory([FromBody] CategoryRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -129,6 +134,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -160,6 +166,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> DeleteCategoryByCode([FromQuery] string categoryCode)
         {
             if (string.IsNullOrWhiteSpace(categoryCode))

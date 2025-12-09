@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
@@ -19,11 +20,19 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get all department 
+        /// Get all departments 
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpGet("/api/Departments")]
-        [ProducesResponseType(typeof(ApiResponse<List<DepartmentDto>>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize]
         public async Task<IActionResult> GetAllDepartmentCode()
         {
             var departments = await _applicationServices.DepartmentService.GetAllDepartmentsAsync();
@@ -40,9 +49,17 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Get department by code
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpGet("{departmentCode}")]
-        [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize]
         public async Task<IActionResult> GetByDepartmentCode(string departmentCode)
         {
             var department = await _applicationServices.DepartmentService.GetByDepartmentCodeAsync(departmentCode);
@@ -54,11 +71,19 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Create department 
+        /// Create department
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpPost]
-        [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateDepartment(DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -83,9 +108,17 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update department 
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpPut]
-        [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
@@ -108,9 +141,17 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update department status
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpPatch("status")]
-        [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateLocationStatus([FromBody] DepartmentStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
@@ -131,11 +172,19 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update department status (ACTIVE or INACTIVE)
+        /// Delete department
         /// </summary>
+        /// <param >Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
         [HttpDelete]
-        [ProducesResponseType(typeof(ApiResponse<DepartmentDto>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDepartmentByCode([FromQuery] string departmentCode)
         {
             if (!ModelState.IsValid)
