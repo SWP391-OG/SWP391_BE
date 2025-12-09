@@ -29,6 +29,8 @@ public partial class User
 
     public virtual Department Department { get; set; }
 
+    public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     public virtual Role Role { get; set; }
 
     public virtual ICollection<Ticket> TicketAssignedToNavigations { get; set; } = new List<Ticket>();

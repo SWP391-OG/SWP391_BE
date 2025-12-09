@@ -101,8 +101,8 @@ namespace SWP391.Repositories.Repositories
         {
             var query = _context.Tickets
                 .Include(t => t.Requester)
-                .Include(t => t.AssignedToNavigation)  
-                .Include(t => t.ManagedByNavigation)    
+                .Include(t => t.AssignedToNavigation)
+                .Include(t => t.ManagedByNavigation)
                 .Include(t => t.Location)
                 .Include(t => t.Category)
                 .Where(t => t.AssignedTo == staffId)
@@ -239,12 +239,6 @@ namespace SWP391.Repositories.Repositories
                 query = query.Where(t => t.Status == status.ToUpper());
             }
 
-            // Priority filter
-            if (!string.IsNullOrWhiteSpace(priority))
-            {
-                query = query.Where(t => t.Priority == priority.ToUpper());
-            }
-
             return query;
         }
 
@@ -264,7 +258,7 @@ namespace SWP391.Repositories.Repositories
                 .Include(t => t.ManagedByNavigation)
                 .Include(t => t.Location)
                 .Include(t => t.Category)
-                .Where(t => t.ResolveDeadline.HasValue && 
+                .Where(t => t.ResolveDeadline.HasValue &&
                             t.ResolveDeadline.Value < now &&
                             (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
                 .OrderBy(t => t.ResolveDeadline)
@@ -282,7 +276,7 @@ namespace SWP391.Repositories.Repositories
                 .Include(t => t.Location)
                 .Include(t => t.Category)
                 .Where(t => t.AssignedTo == staffId &&
-                            t.ResolveDeadline.HasValue && 
+                            t.ResolveDeadline.HasValue &&
                             t.ResolveDeadline.Value < now &&
                             (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
                 .OrderBy(t => t.ResolveDeadline)
@@ -293,9 +287,9 @@ namespace SWP391.Repositories.Repositories
         /// Check for potential duplicate tickets (same requester, similar title, same category, created recently)
         /// </summary>
         public async Task<List<Ticket>> CheckForDuplicateTicketsAsync(
-            int requesterId, 
-            string title, 
-            int categoryId, 
+            int requesterId,
+            string title,
+            int categoryId,
             DateTime createdAfter)
         {
             return await _context.Tickets

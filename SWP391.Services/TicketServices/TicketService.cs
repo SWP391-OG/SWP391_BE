@@ -3,6 +3,7 @@ using SWP391.Contracts.Common;
 using SWP391.Contracts.Ticket;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
+using SWP391.Services.NotificationServices;
 
 namespace SWP391.Services.TicketServices
 {
@@ -10,11 +11,13 @@ namespace SWP391.Services.TicketServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public TicketService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TicketService(IUnitOfWork unitOfWork, IMapper mapper, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         #region Student Operations
@@ -34,10 +37,6 @@ namespace SWP391.Services.TicketServices
             if (location == null)
                 return (false, "Location not found", null);
 
-            // Validate priority
-            if (!new[] { "LOW", "MEDIUM", "HIGH" }.Contains(dto.Priority.ToUpper()))
-                return (false, "Invalid priority. Must be LOW, MEDIUM, or HIGH", null);
-
             // Create ticket
             var ticket = new Ticket
             {
@@ -49,7 +48,8 @@ namespace SWP391.Services.TicketServices
                 LocationId = location.Id,
                 CategoryId = category.Id,
                 Status = "NEW",
-                Priority = dto.Priority.ToUpper(),
+                ContactPhone = null, // Will be set when staff is assigned
+                Note = null,
                 CreatedAt = DateTime.UtcNow,
                 ResolveDeadline = CalculateResolveDeadline(category.SlaResolveHours ?? 24)
             };
@@ -61,16 +61,10 @@ namespace SWP391.Services.TicketServices
             var createdTicket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticket.TicketCode);
             var ticketDto = _mapper.Map<TicketDto>(createdTicket);
 
-            return (true, "Ticket created successfully", ticketDto);
-        }
+            // Notify admins of new ticket
+            await _notificationService.NotifyAdminsOfNewTicketAsync(ticket.TicketCode, ticket.Title);
 
-        /// <summary>
-        /// Get all tickets created by the student
-        /// </summary>
-        public async Task<List<TicketDto>> GetMyTicketsAsync(int requesterId)
-        {
-            var tickets = await _unitOfWork.TicketRepository.GetTicketsByRequesterIdAsync(requesterId);
-            return _mapper.Map<List<TicketDto>>(tickets);
+            return (true, "Ticket created successfully", ticketDto);
         }
 
         /// <summary>
@@ -80,7 +74,7 @@ namespace SWP391.Services.TicketServices
             string ticketCode, UpdateTicketDto dto, int userId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -90,23 +84,15 @@ namespace SWP391.Services.TicketServices
             if (ticket.Status != "NEW")
                 return (false, "Only NEW tickets can be updated");
 
-            // Validate priority if provided
-            if (!string.IsNullOrEmpty(dto.Priority) && 
-                !new[] { "LOW", "MEDIUM", "HIGH" }.Contains(dto.Priority.ToUpper()))
-                return (false, "Invalid priority. Must be LOW, MEDIUM, or HIGH");
-
             // Update fields
             if (!string.IsNullOrEmpty(dto.Title))
                 ticket.Title = dto.Title;
-            
+
             if (!string.IsNullOrEmpty(dto.Description))
                 ticket.Description = dto.Description;
-            
+
             if (!string.IsNullOrEmpty(dto.ImageUrl))
                 ticket.ImageUrl = dto.ImageUrl;
-            
-            if (!string.IsNullOrEmpty(dto.Priority))
-                ticket.Priority = dto.Priority.ToUpper();
 
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
@@ -116,11 +102,12 @@ namespace SWP391.Services.TicketServices
 
         /// <summary>
         /// Student cancels their own NEW ticket (Soft Delete - Status = CANCELLED)
+        /// NOW REQUIRES A REASON
         /// </summary>
-        public async Task<(bool Success, string Message)> CancelTicketAsync(string ticketCode, int userId)
+        public async Task<(bool Success, string Message)> CancelTicketAsync(string ticketCode, int userId, string reason)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -136,9 +123,14 @@ namespace SWP391.Services.TicketServices
             if (ticket.Status != "NEW")
                 return (false, "Only NEW tickets can be cancelled by students. Please contact an administrator for assistance.");
 
-            // Soft delete - set status to CANCELLED
+            // Validate reason is provided
+            if (string.IsNullOrWhiteSpace(reason))
+                return (false, "Cancellation reason is required");
+
+            // Soft delete - set status to CANCELLED and store the reason in Note
             ticket.Status = "CANCELLED";
             ticket.ClosedAt = DateTime.UtcNow;
+            ticket.Note = $"[CANCELLED BY STUDENT] {reason}";
 
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
@@ -153,7 +145,7 @@ namespace SWP391.Services.TicketServices
             string ticketCode, TicketFeedbackDto dto, int requesterId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -181,7 +173,7 @@ namespace SWP391.Services.TicketServices
         }
 
         /// <summary>
-        /// Get student's tickets with pagination and filtering (TicketCode, Status, Priority)
+        /// Get student's tickets with pagination and filtering (TicketCode, Status)
         /// </summary>
         public async Task<PaginatedResponse<TicketDto>> GetMyTicketsWithPaginationAsync(int requesterId, PaginationRequestDto request)
         {
@@ -191,7 +183,7 @@ namespace SWP391.Services.TicketServices
                 request.PageSize,
                 request.TicketCode,
                 request.Status,
-                request.Priority
+                null // No priority filter
             );
 
             var ticketDtos = _mapper.Map<List<TicketDto>>(items);
@@ -204,12 +196,13 @@ namespace SWP391.Services.TicketServices
 
         /// <summary>
         /// Admin assigns ticket automatically (finds staff with least workload)
+        /// SETS ContactPhone to assigned staff's phone number
         /// </summary>
         public async Task<(bool Success, string Message, string AssignedStaffCode)> AssignTicketAutomaticallyAsync(
             string ticketCode, int adminId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found", string.Empty);
 
@@ -228,7 +221,7 @@ namespace SWP391.Services.TicketServices
             // Get staff workload for the department
             var staffWorkload = await _unitOfWork.TicketRepository
                 .GetStaffWorkloadByDepartmentCodeAsync(department.DeptCode);
-            
+
             if (!staffWorkload.Any())
                 return (false, "No available staff in the department", string.Empty);
 
@@ -240,27 +233,32 @@ namespace SWP391.Services.TicketServices
             if (staffUser == null)
                 return (false, "Selected staff not found", string.Empty);
 
-            // Assign ticket
+            // Assign ticket and set ContactPhone
             ticket.AssignedTo = staffUser.Id;
             ticket.ManagedBy = adminId;
             ticket.Status = "ASSIGNED";
+            ticket.ContactPhone = staffUser.PhoneNumber; // Set staff's phone number
 
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
-            return (true, 
-                $"Ticket automatically assigned to {selectedStaff.StaffName} (Current workload: {selectedStaff.ActiveTicketCount} tickets)", 
+            // Notify staff of assignment
+            await _notificationService.NotifyStaffOfAssignmentAsync(staffUser.Id, ticket.TicketCode, ticket.Title);
+
+            return (true,
+                $"Ticket automatically assigned to {selectedStaff.StaffName} (Current workload: {selectedStaff.ActiveTicketCount} tickets)",
                 selectedStaff.StaffCode);
         }
 
         /// <summary>
         /// Admin assigns ticket manually to a specific staff
+        /// SETS ContactPhone to assigned staff's phone number
         /// </summary>
         public async Task<(bool Success, string Message)> AssignTicketManuallyAsync(
             string ticketCode, string staffCode, int adminId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -277,23 +275,29 @@ namespace SWP391.Services.TicketServices
             if (staff.DepartmentId != category.DepartmentId)
                 return (false, "Staff must belong to the same department as the ticket category");
 
+            // Assign ticket and set ContactPhone
             ticket.AssignedTo = staff.Id;
             ticket.ManagedBy = adminId;
             ticket.Status = "ASSIGNED";
+            ticket.ContactPhone = staff.PhoneNumber; // Set staff's phone number
 
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
+
+            // Notify staff of assignment
+            await _notificationService.NotifyStaffOfAssignmentAsync(staff.Id, ticket.TicketCode, ticket.Title);
 
             return (true, $"Ticket manually assigned to {staff.FullName}");
         }
 
         /// <summary>
         /// Admin cancels any ticket regardless of status (Soft Delete - Status = CANCELLED)
+        /// NOW REQUIRES A REASON
         /// </summary>
-        public async Task<(bool Success, string Message)> AdminCancelTicketAsync(string ticketCode, int adminId)
+        public async Task<(bool Success, string Message)> AdminCancelTicketAsync(string ticketCode, int adminId, string reason)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -303,10 +307,15 @@ namespace SWP391.Services.TicketServices
             if (ticket.Status == "CLOSED")
                 return (false, "Ticket is already closed and cannot be cancelled");
 
+            // Validate reason is provided
+            if (string.IsNullOrWhiteSpace(reason))
+                return (false, "Cancellation reason is required");
+
             // Admin can cancel tickets in any status (except CLOSED and CANCELLED)
             ticket.Status = "CANCELLED";
             ticket.ClosedAt = DateTime.UtcNow;
-            
+            ticket.Note = $"[CANCELLED BY ADMIN] {reason}"; // Store reason in Note
+
             // Record who cancelled it for audit trail
             if (ticket.ManagedBy == null)
             {
@@ -316,11 +325,17 @@ namespace SWP391.Services.TicketServices
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
+            // Notify student of cancellation
+            await _notificationService.NotifyStudentOfTicketUpdateAsync(
+                ticket.RequesterId,
+                ticketCode,
+                $"Your ticket has been cancelled by administrator. Reason: {reason}");
+
             return (true, "Ticket cancelled successfully by administrator");
         }
 
         /// <summary>
-        /// Get all tickets with pagination and filtering (Admin) - TicketCode, Status, Priority
+        /// Get all tickets with pagination and filtering (Admin) - TicketCode, Status
         /// </summary>
         public async Task<PaginatedResponse<TicketDto>> GetAllTicketsWithPaginationAsync(TicketSearchRequestDto request)
         {
@@ -329,7 +344,7 @@ namespace SWP391.Services.TicketServices
                 request.PageSize,
                 request.TicketCode,
                 request.Status,
-                request.Priority
+                null // No priority filter
             );
 
             var ticketDtos = _mapper.Map<List<TicketDto>>(items);
@@ -342,7 +357,7 @@ namespace SWP391.Services.TicketServices
         public async Task<List<StaffWorkloadDto>> GetStaffWorkloadByDepartmentCodeAsync(string deptCode)
         {
             var workload = await _unitOfWork.TicketRepository.GetStaffWorkloadByDepartmentCodeAsync(deptCode);
-            
+
             return workload.Select(w => new StaffWorkloadDto
             {
                 StaffCode = w.StaffCode,
@@ -363,7 +378,7 @@ namespace SWP391.Services.TicketServices
             string ticketCode, UpdateTicketStatusDto dto, int staffId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
@@ -401,20 +416,17 @@ namespace SWP391.Services.TicketServices
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
+            // Notify student of status update
+            await _notificationService.NotifyStudentOfTicketUpdateAsync(
+                ticket.RequesterId,
+                ticketCode,
+                $"Your ticket status has been updated to {newStatus}");
+
             return (true, $"Ticket status updated to {newStatus}");
         }
 
         /// <summary>
-        /// Get all tickets assigned to the staff
-        /// </summary>
-        public async Task<List<TicketDto>> GetMyAssignedTicketsAsync(int staffId)
-        {
-            var tickets = await _unitOfWork.TicketRepository.GetTicketsByAssignedToAsync(staffId);
-            return _mapper.Map<List<TicketDto>>(tickets);
-        }
-
-        /// <summary>
-        /// Get staff's assigned tickets with pagination and filtering (TicketCode, Status, Priority)
+        /// Get staff's assigned tickets with pagination and filtering (TicketCode, Status)
         /// </summary>
         public async Task<PaginatedResponse<TicketDto>> GetMyAssignedTicketsWithPaginationAsync(int staffId, PaginationRequestDto request)
         {
@@ -424,7 +436,7 @@ namespace SWP391.Services.TicketServices
                 request.PageSize,
                 request.TicketCode,
                 request.Status,
-                request.Priority
+                null // No priority filter
             );
 
             var ticketDtos = _mapper.Map<List<TicketDto>>(items);
@@ -434,15 +446,6 @@ namespace SWP391.Services.TicketServices
         #endregion
 
         #region Common Operations
-
-        /// <summary>
-        /// Get all tickets (Admin access)
-        /// </summary>
-        public async Task<List<TicketDto>> GetAllTicketsAsync()
-        {
-            var tickets = await _unitOfWork.TicketRepository.GetAllTicketsAsync();
-            return _mapper.Map<List<TicketDto>>(tickets);
-        }
 
         /// <summary>
         /// Get ticket by code
@@ -516,11 +519,11 @@ namespace SWP391.Services.TicketServices
 
             // Check for tickets created in the last 7 days
             var createdAfter = DateTime.UtcNow.AddDays(-7);
-            
+
             var duplicates = await _unitOfWork.TicketRepository.CheckForDuplicateTicketsAsync(
-                requesterId, 
-                dto.Title, 
-                category.Id, 
+                requesterId,
+                dto.Title,
+                category.Id,
                 createdAfter);
 
             var duplicateDtos = _mapper.Map<List<TicketDto>>(duplicates);
@@ -533,32 +536,26 @@ namespace SWP391.Services.TicketServices
 
         /// <summary>
         /// Escalate a ticket (Admin manually escalates or auto-escalate overdue tickets)
+        /// REMOVED PRIORITY LOGIC
         /// </summary>
         public async Task<(bool Success, string Message)> EscalateTicketAsync(string ticketCode, int adminId)
         {
             var ticket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
-            
+
             if (ticket == null)
                 return (false, "Ticket not found");
 
             if (ticket.Status == "RESOLVED" || ticket.Status == "CLOSED" || ticket.Status == "CANCELLED")
                 return (false, "Cannot escalate tickets that are already resolved, closed, or cancelled");
 
-            // Change priority to HIGH if not already
-            if (ticket.Priority != "HIGH")
-                ticket.Priority = "HIGH";
-
             // Record who escalated it
             if (ticket.ManagedBy == null)
                 ticket.ManagedBy = adminId;
 
-            // Optional: You could add an "ESCALATED" status or keep current status
-            // ticket.Status = "ESCALATED";
-
             _unitOfWork.TicketRepository.Update(ticket);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
-            return (true, $"Ticket {ticketCode} escalated to HIGH priority");
+            return (true, $"Ticket {ticketCode} escalated successfully");
         }
 
         #endregion

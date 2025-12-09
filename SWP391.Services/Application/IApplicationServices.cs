@@ -1,10 +1,10 @@
 using SWP391.Services.Authentication;
-
-using SWP391.Services.DepartmentServices;
 using SWP391.Services.CategoryServices;
+using SWP391.Services.DepartmentServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
+using SWP391.Services.NotificationServices;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
 using SWP391.Services.UserServices;
@@ -22,5 +22,6 @@ namespace SWP391.Services.Application
         IRoleService RoleService { get; }
         ITicketService TicketService { get; }
         IUserService UserService { get; }
+        INotificationService NotificationService { get; }
     }
 }

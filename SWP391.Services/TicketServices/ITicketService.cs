@@ -10,12 +10,12 @@ namespace SWP391.Services.TicketServices
         Task<PaginatedResponse<TicketDto>> GetMyTicketsWithPaginationAsync(int requesterId, PaginationRequestDto request);
         Task<(bool Success, string Message)> UpdateTicketAsync(string ticketCode, UpdateTicketDto dto, int userId);
         Task<(bool Success, string Message)> ProvideFeedbackAsync(string ticketCode, TicketFeedbackDto dto, int requesterId);
-        Task<(bool Success, string Message)> CancelTicketAsync(string ticketCode, int userId);
+        Task<(bool Success, string Message)> CancelTicketAsync(string ticketCode, int userId, string reason);
 
         // Admin operations
         Task<(bool Success, string Message, string AssignedStaffCode)> AssignTicketAutomaticallyAsync(string ticketCode, int adminId);
         Task<(bool Success, string Message)> AssignTicketManuallyAsync(string ticketCode, string staffCode, int adminId);
-        Task<(bool Success, string Message)> AdminCancelTicketAsync(string ticketCode, int adminId);
+        Task<(bool Success, string Message)> AdminCancelTicketAsync(string ticketCode, int adminId, string reason);
         Task<List<StaffWorkloadDto>> GetStaffWorkloadByDepartmentCodeAsync(string deptCode);
         Task<PaginatedResponse<TicketDto>> GetAllTicketsWithPaginationAsync(TicketSearchRequestDto request);
 

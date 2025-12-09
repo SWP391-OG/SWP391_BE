@@ -6,27 +6,27 @@ namespace SWP391.WebAPI.Constants
         public const string INVALID_REQUEST_DATA = "Invalid request data";
         public const string INVALID_USER_AUTHENTICATION = "Invalid user authentication";
         public const string UNAUTHORIZED_ACCESS = "You do not have permission to access this resource";
-        
+
         // Authentication Messages
         public const string LOGIN_SUCCESS = "Login successful";
         public const string LOGIN_FAILED = "Invalid email or password";
         public const string ACCOUNT_NOT_ACTIVE = "Account is not active. Please verify your email first";
-        
+
         // Registration Messages
         public const string REGISTRATION_SUCCESS = "Registration successful. Please check your email for verification code";
         public const string EMAIL_ALREADY_EXISTS = "Email already exists";
-        
+
         // Email Verification Messages
         public const string EMAIL_VERIFIED = "Email verified successfully. You can now login";
         public const string INVALID_VERIFICATION_CODE = "Invalid or expired verification code";
         public const string VERIFICATION_CODE_RESENT = "Verification code resent successfully. Please check your email";
         public const string EMAIL_ALREADY_VERIFIED = "Email is already verified";
-        
+
         // Password Reset Messages
         public const string PASSWORD_RESET_EMAIL_SENT = "If the email exists, a password reset code has been sent";
         public const string PASSWORD_RESET_SUCCESS = "Password reset successfully. You can now login with your new password";
         public const string INVALID_RESET_CODE = "Invalid or expired reset code";
-        
+
         // General Messages
         public const string USER_NOT_FOUND = "User not found";
         public const string SUCCESS = "Success";
@@ -47,7 +47,7 @@ namespace SWP391.WebAPI.Constants
         public const string DUPLICATE_TICKET_DETECTED = "A similar ticket already exists";
         public const string TICKET_ESCALATED_SUCCESS = "Ticket escalated successfully";
         public const string OVERDUE_TICKETS_RETRIEVED = "Overdue tickets retrieved successfully";
-        
+
         // Ticket Validation Messages
         public const string STAFF_CODE_REQUIRED = "Staff code is required for manual assignment";
         public const string ONLY_STUDENTS_CAN_CREATE_TICKETS = "Only students can create tickets";
@@ -59,5 +59,12 @@ namespace SWP391.WebAPI.Constants
         public const string ONLY_NEW_TICKETS_CAN_BE_CANCELLED_BY_STUDENT = "Only NEW tickets can be cancelled by students";
         public const string ONLY_TICKET_OWNER_CAN_CANCEL = "You can only cancel your own tickets";
         public const string ADMIN_CAN_CANCEL_ANY_TICKET = "Administrators can cancel any ticket";
+
+        // Notification Messages
+        public const string NOTIFICATIONS_RETRIEVED_SUCCESS = "Notifications retrieved successfully";
+        public const string NOTIFICATION_MARKED_AS_READ = "Notification marked as read";
+        public const string ALL_NOTIFICATIONS_MARKED_AS_READ = "All notifications marked as read";
+        public const string NOTIFICATION_NOT_FOUND = "Notification not found";
+        public const string UNREAD_COUNT_RETRIEVED = "Unread notification count retrieved successfully";
     }
 }

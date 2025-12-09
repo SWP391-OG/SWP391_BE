@@ -3,6 +3,7 @@ using SWP391.Contracts;
 using SWP391.Contracts.Authentication;
 using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
+using SWP391.Contracts.Notification;
 using SWP391.Contracts.Ticket;
 using SWP391.Contracts.User;
 using SWP391.Repositories.Models;
@@ -72,9 +73,13 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.Location.LocationCode))
                 .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Location.LocationName))
                 .ForMember(dest => dest.CategoryCode, opt => opt.MapFrom(src => src.Category.CategoryCode))
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName));
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
+                .ForMember(dest => dest.ContactPhone, opt => opt.MapFrom(src => src.ContactPhone))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
 
             CreateMap<User, UserProfileDto>();
+
+            CreateMap<Notification, NotificationDto>();
         }
     }
 }

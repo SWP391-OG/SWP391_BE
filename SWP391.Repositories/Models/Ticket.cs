@@ -29,7 +29,9 @@ public partial class Ticket
 
     public string Status { get; set; }
 
-    public string Priority { get; set; }
+    public string ContactPhone { get; set; }
+
+    public string Note { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 

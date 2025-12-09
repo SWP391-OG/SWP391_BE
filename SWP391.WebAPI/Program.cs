@@ -15,6 +15,7 @@ using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
 using SWP391.Services.Mappings;
+using SWP391.Services.NotificationServices;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
 using SWP391.Services.UserServices;
@@ -51,9 +52,10 @@ builder.Services.AddScoped<IApplicationServices, ApplicationServices>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -128,7 +130,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SWP391 API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FPTechnical API", Version = "v1" });
     // Avoid schema ID collisions for types with the same class name in different namespaces
     c.CustomSchemaIds(type => type.FullName?.Replace('+', '.') ?? type.Name);
     // Include XML comments

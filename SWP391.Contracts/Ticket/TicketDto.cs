@@ -6,7 +6,7 @@ namespace SWP391.Contracts.Ticket
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
-        
+
         // Use codes instead of IDs for frontend
         public string RequesterCode { get; set; } = string.Empty;
         public string RequesterName { get; set; } = string.Empty;
@@ -18,9 +18,10 @@ namespace SWP391.Contracts.Ticket
         public string LocationName { get; set; } = string.Empty;
         public string CategoryCode { get; set; } = string.Empty;
         public string CategoryName { get; set; } = string.Empty;
-        
+
         public string Status { get; set; } = string.Empty;
-        public string Priority { get; set; } = string.Empty;
+        public string ContactPhone { get; set; } = string.Empty;
+        public string Note { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; }
         public DateTime? ResolveDeadline { get; set; }
         public DateTime? ResolvedAt { get; set; }
@@ -35,9 +36,8 @@ namespace SWP391.Contracts.Ticket
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
-        public string LocationCode { get; set; } = string.Empty; // Changed from LocationId
-        public string CategoryCode { get; set; } = string.Empty; // Changed from CategoryId
-        public string Priority { get; set; } = "MEDIUM"; // LOW, MEDIUM, HIGH
+        public string LocationCode { get; set; } = string.Empty;
+        public string CategoryCode { get; set; } = string.Empty;
     }
 
     // Admin assigns ticket (AUTOMATIC - just needs ticket code)
@@ -59,21 +59,26 @@ namespace SWP391.Contracts.Ticket
         public string RatingComment { get; set; } = string.Empty;
     }
 
-    // Update ticket details (Admin/Staff can update title, description, priority)
+    // Update ticket details (Admin/Staff can update title, description)
     public class UpdateTicketDto
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
-        public string Priority { get; set; } = string.Empty;
     }
 
     // Get staff workload for a department
     public class StaffWorkloadDto
     {
-        public string StaffCode { get; set; } = string.Empty; // Changed from StaffId
+        public string StaffCode { get; set; } = string.Empty;
         public string StaffName { get; set; } = string.Empty;
         public int ActiveTicketCount { get; set; }
-        public string DepartmentCode { get; set; } = string.Empty; // Changed from DepartmentId
+        public string DepartmentCode { get; set; } = string.Empty;
+    }
+
+    // Cancel ticket DTO with required reason
+    public class CancelTicketRequestDto
+    {
+        public string Reason { get; set; } = string.Empty; // Required cancellation reason
     }
 }

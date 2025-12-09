@@ -61,9 +61,9 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var paginatedTickets = await _applicationServices.TicketService.GetAllTicketsWithPaginationAsync(request);
-            
+
             return Ok(ApiResponse<PaginatedResponse<TicketDto>>.SuccessResponse(
-                paginatedTickets, 
+                paginatedTickets,
                 $"Retrieved {paginatedTickets.Items.Count} tickets (Page {paginatedTickets.PageNumber} of {paginatedTickets.TotalPages})"));
         }
 
@@ -118,7 +118,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var paginatedTickets = await _applicationServices.TicketService.GetMyTicketsWithPaginationAsync(userId.Value, request);
-            
+
             return Ok(ApiResponse<PaginatedResponse<TicketDto>>.SuccessResponse(
                 paginatedTickets,
                 $"Retrieved {paginatedTickets.Items.Count} tickets (Page {paginatedTickets.PageNumber} of {paginatedTickets.TotalPages})"));
@@ -145,7 +145,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var paginatedTickets = await _applicationServices.TicketService.GetMyAssignedTicketsWithPaginationAsync(userId.Value, request);
-            
+
             return Ok(ApiResponse<PaginatedResponse<TicketDto>>.SuccessResponse(
                 paginatedTickets,
                 $"Retrieved {paginatedTickets.Items.Count} tickets (Page {paginatedTickets.PageNumber} of {paginatedTickets.TotalPages})"));
@@ -245,7 +245,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             return Ok(ApiResponse<object>.SuccessResponse(null, message));
-        }  
+        }
 
         #endregion
 
@@ -433,6 +433,7 @@ namespace SWP391.WebAPI.Controllers
         /// Student cancels their own NEW ticket (SOFT DELETE - sets status to CANCELLED)
         /// </summary>
         /// <param name="ticketCode">The ticket code to cancel</param>
+        /// <param name="dto">Cancellation request with reason</param>
         /// <response code="200">Ticket cancelled successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
@@ -445,11 +446,23 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        public async Task<IActionResult> CancelTicket(string ticketCode)
+        public async Task<IActionResult> CancelTicket(string ticketCode, [FromBody] CancelTicketRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    ApiMessages.INVALID_REQUEST_DATA,
+                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
+            }
+
             if (string.IsNullOrWhiteSpace(ticketCode))
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(ApiMessages.INVALID_REQUEST_DATA));
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Reason))
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("Cancellation reason is required"));
             }
 
             var userId = GetCurrentUserId();
@@ -459,7 +472,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .TicketService.CancelTicketAsync(ticketCode, userId.Value);
+                .TicketService.CancelTicketAsync(ticketCode, userId.Value, dto.Reason);
 
             if (!success)
             {
@@ -473,6 +486,7 @@ namespace SWP391.WebAPI.Controllers
         /// Admin cancels any ticket (SOFT DELETE - sets status to CANCELLED)
         /// </summary>
         /// <param name="ticketCode">The ticket code to cancel</param>
+        /// <param name="dto">Cancellation request with reason</param>
         /// <response code="200">Ticket cancelled successfully by administrator.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
@@ -485,11 +499,23 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        public async Task<IActionResult> AdminCancelTicket(string ticketCode)
+        public async Task<IActionResult> AdminCancelTicket(string ticketCode, [FromBody] CancelTicketRequestDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    ApiMessages.INVALID_REQUEST_DATA,
+                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
+            }
+
             if (string.IsNullOrWhiteSpace(ticketCode))
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(ApiMessages.INVALID_REQUEST_DATA));
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Reason))
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse("Cancellation reason is required"));
             }
 
             var userId = GetCurrentUserId();
@@ -499,7 +525,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .TicketService.AdminCancelTicketAsync(ticketCode, userId.Value);
+                .TicketService.AdminCancelTicketAsync(ticketCode, userId.Value, dto.Reason);
 
             if (!success)
             {

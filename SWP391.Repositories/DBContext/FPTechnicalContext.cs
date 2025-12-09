@@ -18,11 +18,15 @@ public partial class FPTechnicalContext : DbContext
     {
     }
 
+    public virtual DbSet<Campus> Campuses { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Department> Departments { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
+
+    public virtual DbSet<Notification> Notifications { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 
@@ -34,11 +38,29 @@ public partial class FPTechnicalContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Campus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Campuses__3213E83F04D0ED33");
+
+            entity.HasIndex(e => e.CampusCode, "UQ__Campuses__E196A319D4D51F68").IsUnique();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CampusCode)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("campus_code");
+            entity.Property(e => e.CampusName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("campus_name");
+        });
+
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Categori__3213E83FE6572F35");
+            entity.HasKey(e => e.Id).HasName("PK__Categori__3213E83F6C95BA38");
 
-            entity.HasIndex(e => e.CategoryCode, "UQ__Categori__BC9D1E7C0D6E2A6A").IsUnique();
+            entity.HasIndex(e => e.CategoryCode, "UQ__Categori__BC9D1E7C25DE8D75").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CategoryCode)
@@ -68,9 +90,9 @@ public partial class FPTechnicalContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Departme__3213E83F324403CF");
+            entity.HasKey(e => e.Id).HasName("PK__Departme__3213E83FB466047A");
 
-            entity.HasIndex(e => e.DeptCode, "UQ__Departme__799C94D539DA5172").IsUnique();
+            entity.HasIndex(e => e.DeptCode, "UQ__Departme__799C94D51D1DF76C").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
@@ -95,11 +117,10 @@ public partial class FPTechnicalContext : DbContext
 
         modelBuilder.Entity<Location>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Location__3213E83F63CACD7D");
-
-            entity.HasIndex(e => e.LocationCode, "UQ__Location__68EFE2C49986ABA6").IsUnique();
+            entity.HasKey(e => e.Id).HasName("PK__Location__3213E83FF3B0ACAA");
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CampusId).HasColumnName("campus_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -118,11 +139,37 @@ public partial class FPTechnicalContext : DbContext
                 .IsUnicode(false)
                 .HasDefaultValue("ACTIVE")
                 .HasColumnName("status");
+
+            entity.HasOne(d => d.Campus).WithMany(p => p.Locations)
+                .HasForeignKey(d => d.CampusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Loc_Campus");
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Notifica__3214EC073B195B60");
+
+            entity.HasIndex(e => e.UserId, "IX_Notifications_UserId");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Message)
+                .IsRequired()
+                .HasMaxLength(500);
+            entity.Property(e => e.TicketCode).HasMaxLength(50);
+            entity.Property(e => e.Type)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.HasOne(d => d.User).WithMany(p => p.Notifications)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Notifications_Users");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F5F898817");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3213E83F67199A85");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.RoleName)
@@ -133,9 +180,9 @@ public partial class FPTechnicalContext : DbContext
 
         modelBuilder.Entity<Ticket>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Tickets__3213E83FAF5E93D8");
+            entity.HasKey(e => e.Id).HasName("PK__Tickets__3213E83F21C3FE67");
 
-            entity.HasIndex(e => e.TicketCode, "UQ__Tickets__628DB75F837D9C22").IsUnique();
+            entity.HasIndex(e => e.TicketCode, "UQ__Tickets__628DB75F2BB50711").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.AssignedTo).HasColumnName("assigned_to");
@@ -143,6 +190,10 @@ public partial class FPTechnicalContext : DbContext
             entity.Property(e => e.ClosedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("closed_at");
+            entity.Property(e => e.ContactPhone)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("contact_phone");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -153,11 +204,7 @@ public partial class FPTechnicalContext : DbContext
                 .HasColumnName("image_url");
             entity.Property(e => e.LocationId).HasColumnName("location_id");
             entity.Property(e => e.ManagedBy).HasColumnName("managed_by");
-            entity.Property(e => e.Priority)
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("MEDIUM")
-                .HasColumnName("priority");
+            entity.Property(e => e.Note).HasColumnName("note");
             entity.Property(e => e.RatingComment).HasColumnName("rating_comment");
             entity.Property(e => e.RatingStars).HasColumnName("rating_stars");
             entity.Property(e => e.RequesterId).HasColumnName("requester_id");
@@ -208,11 +255,11 @@ public partial class FPTechnicalContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83FF4A1A8CE");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3213E83F51A57BF2");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__AB6E6164DFDFE033").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__AB6E61648E0EA436").IsUnique();
 
-            entity.HasIndex(e => e.UserCode, "UQ__Users__EDC4140FCFB4AF6F").IsUnique();
+            entity.HasIndex(e => e.UserCode, "UQ__Users__EDC4140F02B68DAA").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
@@ -262,7 +309,7 @@ public partial class FPTechnicalContext : DbContext
 
         modelBuilder.Entity<VerificationCode>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Verifica__3213E83FEF842B62");
+            entity.HasKey(e => e.Id).HasName("PK__Verifica__3213E83F85CA608D");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Code)

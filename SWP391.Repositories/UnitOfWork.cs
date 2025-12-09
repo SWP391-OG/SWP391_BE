@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SWP391.Repositories.DBContext;
+﻿using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Repositories;
 
@@ -15,23 +14,23 @@ namespace SWP391.Repositories
         private RoleRepository _roleRepository;
         private DepartmentRepository _departmentRepository;
         private CategoryRepository _categoryRepository;
+        private NotificationRepository _notificationRepository;
 
         public UnitOfWork(FPTechnicalContext context)
         {
             _context = context;
         }
 
-        public UserRepository UserRepository    { get => _userRepository ??= new UserRepository(_context); }
-        
+        public UserRepository UserRepository { get => _userRepository ??= new UserRepository(_context); }
+
         public VerificationCodeRepository VerificationCodeRepository { get => _verificationCodeRepository ??= new VerificationCodeRepository(_context); }
-   
+
         public LocationRepository LocationRepository { get => _locationRepository ??= new LocationRepository(_context); }
         public TicketRepository TicketRepository { get => _ticketRepository ??= new TicketRepository(_context); }
         public RoleRepository RoleRepository { get => _roleRepository ??= new RoleRepository(_context); }
         public DepartmentRepository DepartmentRepository { get => _departmentRepository ??= new DepartmentRepository(_context); }
         public CategoryRepository CategoryRepository { get => _categoryRepository ??= new CategoryRepository(_context); }
-
-
+        public NotificationRepository NotificationRepository { get => _notificationRepository ??= new NotificationRepository(_context); }
 
 
         public int SaveChangesWithTransaction()

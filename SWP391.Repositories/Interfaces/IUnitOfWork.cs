@@ -4,6 +4,7 @@ namespace SWP391.Repositories.Interfaces
 {
     public interface IUnitOfWork
     {
+        NotificationRepository NotificationRepository { get; }
         UserRepository UserRepository { get; }
         LocationRepository LocationRepository { get; }
         VerificationCodeRepository VerificationCodeRepository { get; }

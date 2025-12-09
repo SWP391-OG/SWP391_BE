@@ -1,9 +1,10 @@
 using SWP391.Services.Authentication;
-using SWP391.Services.DepartmentServices;
 using SWP391.Services.CategoryServices;
+using SWP391.Services.DepartmentServices;
 using SWP391.Services.Email;
 using SWP391.Services.JWT;
 using SWP391.Services.LocationServices;
+using SWP391.Services.NotificationServices;
 using SWP391.Services.RoleServices;
 using SWP391.Services.TicketServices;
 using SWP391.Services.UserServices;
@@ -17,10 +18,11 @@ namespace SWP391.Services.Application
         public IJwtService JwtService { get; }
         public ILocationService LocationService { get; }
         public ICategoryService CategoryService { get; }
-        public IDepartmentService DepartmentService {  get; }
+        public IDepartmentService DepartmentService { get; }
         public IRoleService RoleService { get; }
         public ITicketService TicketService { get; set; }
         public IUserService UserService { get; }
+        public INotificationService NotificationService { get; }
 
         public ApplicationServices(
             IAuthenticationService authenticationService,
@@ -31,7 +33,8 @@ namespace SWP391.Services.Application
             IDepartmentService departmentService,
             IRoleService roleService,
             ITicketService ticketService,
-            IUserService userService)
+            IUserService userService,
+            INotificationService notificationService)
         {
             AuthenticationService = authenticationService;
             EmailService = emailService;
@@ -42,6 +45,7 @@ namespace SWP391.Services.Application
             RoleService = roleService;
             TicketService = ticketService;
             UserService = userService;
+            NotificationService = notificationService;
         }
     }
 }

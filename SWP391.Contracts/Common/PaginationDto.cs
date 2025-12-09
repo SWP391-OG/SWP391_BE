@@ -35,11 +35,6 @@ namespace SWP391.Contracts.Common
         /// Filter by status (NEW, ASSIGNED, IN_PROGRESS, RESOLVED, CLOSED, CANCELLED)
         /// </summary>
         public string? Status { get; set; }
-
-        /// <summary>
-        /// Filter by priority (LOW, MEDIUM, HIGH)
-        /// </summary>
-        public string? Priority { get; set; }
     }
 
     /// <summary>
@@ -72,11 +67,11 @@ namespace SWP391.Contracts.Common
     }
 
     /// <summary>
-    /// Ticket-specific search (Admin) - inherits the same 3 filters
+    /// Ticket-specific search (Admin) - inherits the same 2 filters
     /// </summary>
     public class TicketSearchRequestDto : PaginationRequestDto
     {
-        // Inherits: TicketCode, Status, Priority from PaginationRequestDto
-        // No additional filters needed - all roles use the same 3 fields
+        // Inherits: TicketCode, Status from PaginationRequestDto
+        // No additional filters needed - all roles use the same 2 fields
     }
 }

@@ -26,7 +26,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<CategoryDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles = "Staff,Admin")]
+        [Authorize]
         public async Task<IActionResult> GetAllCategory()
         {
             var categories = await _applicationServices.CategoryService.GetAllCategoryAsync();
@@ -48,7 +48,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpGet("{categoryCode}")]
         [ProducesResponseType(typeof(ApiResponse<CategoryDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles = "Staff,Admin")]
+        [Authorize]
         public async Task<IActionResult> GetByCategoryCode(string categoryCode)
         {
             var category = await _applicationServices.CategoryService.GetByCategoryCodeAsync(categoryCode);
@@ -166,7 +166,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategoryByCode([FromQuery] string categoryCode)
         {
             if (string.IsNullOrWhiteSpace(categoryCode))

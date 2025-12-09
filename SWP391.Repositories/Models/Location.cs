@@ -13,9 +13,13 @@ public partial class Location
 
     public string LocationName { get; set; }
 
+    public int CampusId { get; set; }
+
     public string Status { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+
+    public virtual Campus Campus { get; set; }
 
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }
