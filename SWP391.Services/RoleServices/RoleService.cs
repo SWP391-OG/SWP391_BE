@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using SWP391.Contracts;
 using SWP391.Contracts.Location;
+using SWP391.Contracts.Role;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
 using System;

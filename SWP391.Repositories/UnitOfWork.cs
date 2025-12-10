@@ -15,6 +15,7 @@ namespace SWP391.Repositories
         private DepartmentRepository _departmentRepository;
         private CategoryRepository _categoryRepository;
         private NotificationRepository _notificationRepository;
+        private CampusRepository _campusRepository;
 
         public UnitOfWork(FPTechnicalContext context)
         {
@@ -31,7 +32,7 @@ namespace SWP391.Repositories
         public DepartmentRepository DepartmentRepository { get => _departmentRepository ??= new DepartmentRepository(_context); }
         public CategoryRepository CategoryRepository { get => _categoryRepository ??= new CategoryRepository(_context); }
         public NotificationRepository NotificationRepository { get => _notificationRepository ??= new NotificationRepository(_context); }
-
+        public CampusRepository CampusRepository { get => _campusRepository ??= new CampusRepository(_context); }
 
         public int SaveChangesWithTransaction()
         {

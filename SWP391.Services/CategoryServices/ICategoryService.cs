@@ -1,4 +1,4 @@
-﻿using SWP391.Contracts;
+﻿using SWP391.Contracts.Category;
 
 namespace SWP391.Services.CategoryServices
 {

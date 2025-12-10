@@ -28,5 +28,7 @@ namespace SWP391.Repositories.Repositories
             var location = await _context.Locations.FirstOrDefaultAsync(d => d.LocationName == name);
             return location;
         }
+
+        
     }
 }

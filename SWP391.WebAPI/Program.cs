@@ -9,6 +9,7 @@ using SWP391.Repositories.DBContext;
 using SWP391.Repositories.Interfaces;
 using SWP391.Services.Application;
 using SWP391.Services.Authentication;
+using SWP391.Services.CampusServices;
 using SWP391.Services.CategoryServices;
 using SWP391.Services.DepartmentServices;
 using SWP391.Services.Email;
@@ -33,7 +34,7 @@ if (builder.Environment.IsDevelopment())
 // Configure DbContext with SQL Server
 builder.Services.AddDbContext<FPTechnicalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICampusService,CampusService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

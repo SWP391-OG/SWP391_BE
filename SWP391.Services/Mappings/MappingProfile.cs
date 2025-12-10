@@ -1,9 +1,11 @@
 using AutoMapper;
-using SWP391.Contracts;
 using SWP391.Contracts.Authentication;
+using SWP391.Contracts.Campus;
+using SWP391.Contracts.Category;
 using SWP391.Contracts.Department;
 using SWP391.Contracts.Location;
 using SWP391.Contracts.Notification;
+using SWP391.Contracts.Role;
 using SWP391.Contracts.Ticket;
 using SWP391.Contracts.User;
 using SWP391.Repositories.Models;
@@ -80,6 +82,8 @@ namespace SWP391.Services.Mappings
             CreateMap<User, UserProfileDto>();
 
             CreateMap<Notification, NotificationDto>();
+
+            CreateMap<Campus, CampusDto>();
         }
     }
 }

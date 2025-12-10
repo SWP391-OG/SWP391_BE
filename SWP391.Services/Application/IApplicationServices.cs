@@ -1,4 +1,5 @@
 using SWP391.Services.Authentication;
+using SWP391.Services.CampusServices;
 using SWP391.Services.CategoryServices;
 using SWP391.Services.DepartmentServices;
 using SWP391.Services.Email;
@@ -23,5 +24,6 @@ namespace SWP391.Services.Application
         ITicketService TicketService { get; }
         IUserService UserService { get; }
         INotificationService NotificationService { get; }
-    }
+        ICampusService CampusService { get; }
+        }
 }

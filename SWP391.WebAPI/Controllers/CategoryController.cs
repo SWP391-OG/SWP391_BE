@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.Contracts;
+using SWP391.Contracts.Category;
 using SWP391.Contracts.Common;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;

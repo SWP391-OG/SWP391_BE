@@ -26,7 +26,7 @@ namespace SWP391.WebAPI.Controllers
         /// Get all rooms 
         /// </summary>
         /// <param >Search and pagination parameters (query string)</param>
-        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
@@ -50,7 +50,7 @@ namespace SWP391.WebAPI.Controllers
         /// Get room by code
         /// </summary>
         /// <param name="locationCode">Search and pagination parameters (query string)</param>
-        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
@@ -73,7 +73,7 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Create room 
         /// </summary>
-        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
@@ -107,7 +107,7 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update room 
         /// </summary>
-        ///  /// <response code="200">Returns paginated tickets.</response>
+        ///  /// <response code="200">Returns paginated location .</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
@@ -144,7 +144,7 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update Location Status (ACTIVE or INACTIVE)
         /// </summary>
-        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
@@ -176,7 +176,7 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update room status
         /// </summary> 
-        /// <response code="200">Returns paginated tickets.</response>
+        /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SWP391.Contracts;
+using SWP391.Contracts.Category;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
 

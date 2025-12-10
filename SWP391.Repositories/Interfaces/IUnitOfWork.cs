@@ -12,6 +12,7 @@ namespace SWP391.Repositories.Interfaces
         CategoryRepository CategoryRepository { get; }
         TicketRepository TicketRepository { get; }
         DepartmentRepository DepartmentRepository { get; }
+        CampusRepository CampusRepository { get; }
         int SaveChangesWithTransaction();
         Task<int> SaveChangesWithTransactionAsync();
     }

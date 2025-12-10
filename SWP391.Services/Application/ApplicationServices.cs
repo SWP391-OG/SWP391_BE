@@ -1,4 +1,5 @@
 using SWP391.Services.Authentication;
+using SWP391.Services.CampusServices;
 using SWP391.Services.CategoryServices;
 using SWP391.Services.DepartmentServices;
 using SWP391.Services.Email;
@@ -23,7 +24,7 @@ namespace SWP391.Services.Application
         public ITicketService TicketService { get; set; }
         public IUserService UserService { get; }
         public INotificationService NotificationService { get; }
-
+        public ICampusService CampusService { get; }
         public ApplicationServices(
             IAuthenticationService authenticationService,
             IEmailService emailService,
@@ -34,7 +35,8 @@ namespace SWP391.Services.Application
             IRoleService roleService,
             ITicketService ticketService,
             IUserService userService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ICampusService campusService)
         {
             AuthenticationService = authenticationService;
             EmailService = emailService;
@@ -46,6 +48,7 @@ namespace SWP391.Services.Application
             TicketService = ticketService;
             UserService = userService;
             NotificationService = notificationService;
+            CampusService = campusService;
         }
     }
 }
