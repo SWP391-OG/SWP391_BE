@@ -27,6 +27,7 @@ namespace SWP391.WebAPI.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<CampusDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize]
         public async Task<IActionResult> GetAllCampuses()
         {
             var campuses = await _applicationServices.CampusService.GetAllCampus();
@@ -50,6 +51,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<CampusDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize]
         public async Task<IActionResult> GetCampusByCode(string campusCode)
         {
             if (string.IsNullOrWhiteSpace(campusCode))
@@ -78,6 +80,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<List<LocationDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize]
         public async Task<IActionResult> GetLocationsByCampusCode(string campusCode)
         {
             if (string.IsNullOrWhiteSpace(campusCode))
