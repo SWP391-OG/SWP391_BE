@@ -76,12 +76,15 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.Location.LocationName))
                 .ForMember(dest => dest.CategoryCode, opt => opt.MapFrom(src => src.Category.CategoryCode))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
-                .ForMember(dest => dest.ContactPhone, opt => opt.MapFrom(src => src.ContactPhone))
-                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note));
+                .ForMember(dest => dest.ContactPhone, opt => opt.MapFrom(src => src.ContactPhone ?? string.Empty))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note ?? string.Empty))
+                .ForMember(dest => dest.RatingComment, opt => opt.MapFrom(src => src.RatingComment ?? string.Empty))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl ?? string.Empty));
 
             CreateMap<User, UserProfileDto>();
 
-            CreateMap<Notification, NotificationDto>();
+            CreateMap<Notification, NotificationDto>()
+                .ForMember(dest => dest.TicketCode, opt => opt.MapFrom(src => src.TicketCode ?? string.Empty));
 
             CreateMap<Campus, CampusDto>();
         }

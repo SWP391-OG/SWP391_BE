@@ -48,8 +48,8 @@ namespace SWP391.Services.TicketServices
                 LocationId = location.Id,
                 CategoryId = category.Id,
                 Status = "NEW",
-                ContactPhone = null, // Will be set when staff is assigned
-                Note = null,
+                ContactPhone = string.Empty, // Will be set when staff is assigned
+                Note = string.Empty,
                 CreatedAt = DateTime.UtcNow,
                 ResolveDeadline = CalculateResolveDeadline(category.SlaResolveHours ?? 24)
             };

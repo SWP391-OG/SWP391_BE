@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.Contracts;
-using SWP391.Contracts.Authentication;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.Location;
-using SWP391.Contracts.Ticket;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
 
@@ -41,9 +38,9 @@ namespace SWP391.WebAPI.Controllers
             var locations = await _applicationServices.LocationService.GetAllLocationsAsync();
             if (locations == null || !locations.Any())
             {
-                return NotFound(ApiResponse<object>.ErrorResponse("No categories found"));
+                return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
             }
-            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Categories retrieved successfully"));
+            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
         }
 
         /// <summary>
@@ -65,9 +62,9 @@ namespace SWP391.WebAPI.Controllers
             var locations = await _applicationServices.LocationService.GetByLocationCodeAsync(locationCode);
             if (locations == null)
             {
-                return NotFound(ApiResponse<object>.ErrorResponse("No categories found"));
+                return NotFound(ApiResponse<object>.ErrorResponse("No location found"));
             }
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(locations, "Categories retrieved successfully"));
+            return Ok(ApiResponse<LocationDto>.SuccessResponse(locations, "Location retrieved successfully"));
         }
 
         /// <summary>
