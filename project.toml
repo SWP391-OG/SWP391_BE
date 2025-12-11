@@ -1,0 +1,3 @@
+[[build.env]]
+name = "GOOGLE_BUILDABLE"
+value = "SWP391.WebAPI/SWP391.WebAPI.csproj"
