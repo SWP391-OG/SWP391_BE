@@ -2,11 +2,6 @@
 using SWP391.Contracts.User;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWP391.Services.UserServices
 {
@@ -129,7 +124,7 @@ namespace SWP391.Services.UserServices
                 PhoneNumber = userDto.PhoneNumber,
                 RoleId = userDto.RoleId,
                 DepartmentId = userDto.DepartmentId,
-                Status = userDto.Status ?? "Active",
+                Status = userDto.Status ?? "ACTIVE",
             };
             newUser.CreatedAt = DateTime.UtcNow;
             await _unitOfWork.UserRepository.CreateAsync(newUser);
@@ -152,7 +147,7 @@ namespace SWP391.Services.UserServices
                 return (false, "User not found");
 
             // Check if email is being changed and if it already exists
-            if (!string.IsNullOrWhiteSpace(userDto.Email) && 
+            if (!string.IsNullOrWhiteSpace(userDto.Email) &&
                 existingUser.Email != userDto.Email)
             {
                 var emailExists = await _unitOfWork.UserRepository.EmailExistsAsync(userDto.Email);
@@ -212,9 +207,9 @@ namespace SWP391.Services.UserServices
             if (!string.IsNullOrWhiteSpace(userDto.PhoneNumber))
                 existingUser.PhoneNumber = userDto.PhoneNumber;
 
-                existingUser.RoleId = userDto.RoleId;
-                existingUser.DepartmentId = userDto.DepartmentId;          
-                existingUser.Status = userDto.Status;
+            existingUser.RoleId = userDto.RoleId;
+            existingUser.DepartmentId = userDto.DepartmentId;
+            existingUser.Status = userDto.Status;
 
             _unitOfWork.UserRepository.Update(existingUser);
             await _unitOfWork.SaveChangesWithTransactionAsync();

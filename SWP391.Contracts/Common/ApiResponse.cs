@@ -3,13 +3,12 @@ namespace SWP391.Contracts.Common
     public class ApiResponse<T>
     {
         public bool Status { get; set; }
-        public string Message { get; set; }
+        public string Message { get; set; } = string.Empty;
         public T Data { get; set; }
-        public List<string> Errors { get; set; }
+        public List<string> Errors { get; set; } = new List<string>();
 
         public ApiResponse()
         {
-            Errors = new List<string>();
         }
 
         public static ApiResponse<T> SuccessResponse(T data, string message = "Success")

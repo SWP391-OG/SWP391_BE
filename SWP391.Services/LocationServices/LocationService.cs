@@ -2,11 +2,6 @@
 using SWP391.Contracts.Location;
 using SWP391.Repositories.Interfaces;
 using SWP391.Repositories.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWP391.Services.LocationServices
 {
@@ -15,8 +10,8 @@ namespace SWP391.Services.LocationServices
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public LocationService(IUnitOfWork unitOfWork, IMapper mapper) 
-        { 
+        public LocationService(IUnitOfWork unitOfWork, IMapper mapper)
+        {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -47,19 +42,11 @@ namespace SWP391.Services.LocationServices
         }
 
 
-        
+
         public async Task<List<LocationDto>> GetAllLocationsAsync()
         {
-          var locations = await _unitOfWork.LocationRepository.GetAllAsync();
-            var exis = new List<LocationDto>();
-            LocationDto existLocation;
-            foreach (var location in locations)
-            {
-               existLocation =  _mapper.Map<LocationDto>(location);
-                exis.Add(existLocation);
-            }
-
-            return exis;
+            var locations = await _unitOfWork.LocationRepository.GetAllAsync();
+            return _mapper.Map<List<LocationDto>>(locations);
         }
 
         public async Task<LocationDto> GetByLocationCodeAsync(string locationCode)
@@ -68,23 +55,23 @@ namespace SWP391.Services.LocationServices
 
         public async Task<(bool Success, string Message)> UpdateLocationAsync(LocationRequestDto dto)
         {
-           var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
-            if(location == null)
+            var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
+            if (location == null)
             {
                 return (false, "Location not found");
             }
             location.LocationCode = dto.LocationCode;
             location.LocationName = dto.LocationName;
             _unitOfWork.LocationRepository.Update(location);
-            
-            return (true, "Location updated successfully"); 
+
+            return (true, "Location updated successfully");
         }
 
-       
+
 
         public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto)
         {
-          var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
+            var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
 
 
             if (location == null)
@@ -97,6 +84,6 @@ namespace SWP391.Services.LocationServices
             return (true, "Location status updated successfully");
         }
 
-        
+
     }
 }

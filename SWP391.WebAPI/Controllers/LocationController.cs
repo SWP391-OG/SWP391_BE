@@ -124,8 +124,6 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
 
-            var locations = await _applicationServices.LocationService.UpdateLocationAsync(dto);
-
             var (success, message) = await _applicationServices
                .LocationService.UpdateLocationAsync(dto);
 
