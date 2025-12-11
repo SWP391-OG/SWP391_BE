@@ -184,6 +184,7 @@ namespace SWP391.Repositories.Repositories
                 .CountAsync();
         }
 
+        // Get staff workload by department code
         public async Task<List<(string StaffCode, string StaffName, int ActiveTicketCount, string DepartmentCode)>>
             GetStaffWorkloadByDepartmentCodeAsync(string deptCode)
         {
