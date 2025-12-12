@@ -169,7 +169,7 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update room status
+        /// Delete room 
         /// </summary> 
         /// <response code="200">Returns paginated location.</response>
         /// <response code="400">Invalid request parameters.</response>

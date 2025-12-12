@@ -29,6 +29,22 @@ namespace SWP391.Repositories.Repositories
             return location;
         }
 
-        
+        // ✅ Get location with Campus data
+        public async Task<Location?> GetLocationByCodeWithCampusAsync(string code)
+        {
+            var location = await _context.Locations
+                .Include(l => l.Campus)
+                .FirstOrDefaultAsync(d => d.LocationCode == code);
+            return location;
+        }
+
+        // ✅ Get all locations with Campus data
+        public async Task<List<Location>> GetAllLocationsWithCampusAsync()
+        {
+            var locations = await _context.Locations
+                .Include(l => l.Campus)
+                .ToListAsync();
+            return locations;
+        }
     }
 }

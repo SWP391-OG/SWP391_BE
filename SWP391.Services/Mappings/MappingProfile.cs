@@ -39,13 +39,17 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.TicketManagedByNavigations, opt => opt.Ignore())
                 .ForMember(dest => dest.TicketRequesters, opt => opt.Ignore());
 
-            // Simplified - AutoMapper handles matching property names automatically
-            CreateMap<Location, LocationDto>();
+            // ? Location mappings with Campus information
+            CreateMap<Location, LocationDto>()
+                .ForMember(dest => dest.CampusName, opt => opt.MapFrom(src => src.Campus != null ? src.Campus.CampusName : string.Empty))
+                .ForMember(dest => dest.CampusCode, opt => opt.MapFrom(src => src.Campus != null ? src.Campus.CampusCode : string.Empty));
 
             CreateMap<LocationRequestDto, Location>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())  // Database-generated
-                .ForMember(dest => dest.Status, opt => opt.Ignore())  // Set by service
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());  // Set by service
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Status, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.Campus, opt => opt.Ignore())
+                .ForMember(dest => dest.Tickets, opt => opt.Ignore());
 
             CreateMap<Category, CategoryDto>();
             CreateMap<CategoryRequestDto, Category>()

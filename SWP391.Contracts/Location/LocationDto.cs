@@ -10,6 +10,8 @@ namespace SWP391.Contracts.Location
     {
         public string LocationCode { get; set; } = string.Empty;
         public string LocationName { get; set; } = string.Empty;
+        public string CampusName { get; set; } = string.Empty;
+        public string CampusCode { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
     }
 
@@ -17,6 +19,7 @@ namespace SWP391.Contracts.Location
     {
         public string LocationCode { get; set; } = string.Empty;
         public string LocationName { get; set; } = string.Empty;
+        public int CampusId { get; set; } 
     }
 
     public class LocationStatusUpdateDto
