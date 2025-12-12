@@ -85,9 +85,9 @@ namespace SWP391.Services.LocationServices
             return _mapper.Map<LocationDto>(location);
         }
 
-        public async Task<(bool Success, string Message)> UpdateLocationAsync(LocationRequestDto dto)
+        public async Task<(bool Success, string Message)> UpdateLocationAsync(int locationId, LocationRequestDto dto)
         {
-            var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
+            var location = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
             if (location == null)
             {
                 return (false, "Location not found");

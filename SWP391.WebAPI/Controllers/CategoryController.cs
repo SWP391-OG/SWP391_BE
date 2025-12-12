@@ -103,7 +103,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategory([FromBody] CategoryRequestDto dto)
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CategoryRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -113,7 +113,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .CategoryService.UpdateCategoryAsync(dto);
+                .CategoryService.UpdateCategoryAsync(categoryId,dto);
 
             if (!success)
             {

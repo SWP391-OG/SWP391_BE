@@ -68,9 +68,9 @@ namespace SWP391.Services.DepartmentServices
             => await _unitOfWork.DepartmentRepository.GetDepartmentByCodeAsync(departmentCode)
                 .ContinueWith(task => _mapper.Map<DepartmentDto>(task.Result));
 
-        public async Task<(bool Success, string Message)> UpdateDepartmentAsync(DepartmentRequestDto dto)
+        public async Task<(bool Success, string Message)> UpdateDepartmentAsync(int departmentId, DepartmentRequestDto dto)
         {
-            var department = await _unitOfWork.DepartmentRepository.GetDepartmentByCodeAsync(dto.DeptCode);
+            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(departmentId);
             if (department == null)
             {
                 return (false, "Department not found");

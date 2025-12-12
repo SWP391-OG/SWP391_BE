@@ -119,7 +119,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentRequestDto dto)
+        public async Task<IActionResult> UpdateDepartment(int departmentId, [FromBody] DepartmentRequestDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -128,14 +128,14 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
 
-            var (success, message) = await _applicationServices.DepartmentService.UpdateDepartmentAsync(dto);
+            var (success, message) = await _applicationServices.DepartmentService.UpdateDepartmentAsync(departmentId, dto);
 
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
             }
 
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
+            return Ok(ApiResponse<DepartmentDto>.SuccessResponse(null, message));
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateLocationStatus([FromBody] DepartmentStatusUpdateDto dto)
+        public async Task<IActionResult> UpdateDepartmentStatus([FromBody] DepartmentStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {

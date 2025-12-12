@@ -51,9 +51,9 @@ namespace SWP391.Services.CategoryServices
         => await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(categoryCode)
                 .ContinueWith(task => _mapper.Map<CategoryDto>(task.Result));
 
-        public async Task<(bool Success, string Message)> UpdateCategoryAsync(CategoryRequestDto dto)
+        public async Task<(bool Success, string Message)> UpdateCategoryAsync(int categoryId, CategoryRequestDto dto)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
             if (category == null)
             {
                 return (false, "Category not found");

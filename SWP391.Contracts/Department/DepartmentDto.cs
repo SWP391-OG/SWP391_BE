@@ -8,6 +8,7 @@ namespace SWP391.Contracts.Department
 {
     public class DepartmentDto
     {
+        public int Id { get; set; }
         public string DeptCode { get; set; } = string.Empty;
 
         public string DeptName { get; set; } = string.Empty;

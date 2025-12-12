@@ -114,7 +114,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateLocation([FromBody] LocationRequestDto dto)
+        public async Task<IActionResult> UpdateLocation(int locationId,[FromBody] LocationRequestDto dto)
         {
 
             if (!ModelState.IsValid)
@@ -125,7 +125,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-               .LocationService.UpdateLocationAsync(dto);
+               .LocationService.UpdateLocationAsync(locationId,dto);
 
             if (!success)
             {
