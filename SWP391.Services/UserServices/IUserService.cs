@@ -15,8 +15,9 @@ namespace SWP391.Services.UserServices
         Task<UserDto?> GetUserByEmailAsync(string email);
         Task<UserDto?> GetUserByUserCodeAsync(string userCode);
         Task<(bool Success, string Message)> UpdateProfileUserAsync(int userId, UserUpdateProfileDto userDto);
-        Task<(bool Success, string Message, UserDto Data)> CreateUserAsync(UserDto userDto);
-        Task<(bool Success, string Message)> UpdateUserAsync(string userCode, UserUpdateDto userDto);
-        Task<(bool Success, string Message)> DeleteUserAsync(string userCode);
+        Task<(bool Success, string Message, UserDto Data)> CreateUserAsync(UserCreateDto userDto);
+        Task<(bool Success, string Message)> UpdateUserAsync(int userId, UserUpdateDto userDto);
+        Task<(bool Success, string Message)> DeleteUserAsync(int userId);
+        Task<(bool Success, string Message)> UpdateUserStatusAsync(UserStatusUpdateDto dto);
     }
 }

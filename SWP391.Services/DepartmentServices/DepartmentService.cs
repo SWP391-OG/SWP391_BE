@@ -39,9 +39,9 @@ namespace SWP391.Services.DepartmentServices
             return (true, "Department created successfully", deparmentDto);
         }
 
-        public async Task<(bool Success, string Message)> DeleteDepartmentByCodeAsync(string departmentCode)
+        public async Task<(bool Success, string Message)> DeleteDepartmentByCodeAsync(int departmentId)
         {
-            var existingCode = await _unitOfWork.DepartmentRepository.GetDepartmentByCodeAsync(departmentCode);
+            var existingCode = await _unitOfWork.DepartmentRepository.GetByIdAsync(departmentId);
             if (existingCode == null)
                 return (false, "Department code doesn't exists");
             await _unitOfWork.DepartmentRepository.RemoveAsync(existingCode);
@@ -76,7 +76,8 @@ namespace SWP391.Services.DepartmentServices
                 return (false, "Department not found");
             }
             department.DeptCode = dto.DeptCode;
-            department.DeptCode = dto.DeptName;
+            department.DeptName = dto.DeptName;
+
             _unitOfWork.DepartmentRepository.Update(department);
 
             return (true, "Department updated successfully");
@@ -86,8 +87,7 @@ namespace SWP391.Services.DepartmentServices
 
         public async Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(DepartmentStatusUpdateDto dto)
         {
-            var department = await _unitOfWork.DepartmentRepository.GetDepartmentByCodeAsync(dto.DeptCode);
-
+            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(dto.Id);
 
             if (department == null)
             {

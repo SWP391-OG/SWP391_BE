@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.User;
+using SWP391.Repositories.Models;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
 using System.Security.Claims;
@@ -137,7 +138,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateUser([FromBody] UserDto userDto)
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateDto userDto)
         {
             if (!ModelState.IsValid)
             {
@@ -159,21 +160,21 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update an existing user 
         /// </summary>
-        /// <param name="userCode">The user ID to update</param>
+        /// <param name="userId">The user ID to update</param>
         /// <param name="userDto">User update data</param>
         /// <response code="200">User updated successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can update users.</response>
         /// <response code="404">User not found.</response>
-        [HttpPut("{userCode}")]
+        [HttpPut]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]    
-        public async Task<IActionResult> UpdateUser( string userCode,[FromBody] UserUpdateDto userDto)
+        public async Task<IActionResult> UpdateUser( int userId,[FromBody] UserUpdateDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!ModelState.IsValid)
@@ -183,7 +184,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
 
-            var (success, message) = await _applicationServices.UserService.UpdateUserAsync(userCode, userDto);
+            var (success, message) = await _applicationServices.UserService.UpdateUserAsync(userId, userDto);
 
             if (!success)
             {
@@ -212,14 +213,53 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(string code)
+        public async Task<IActionResult> DeleteUser(int userId)
         {
-            if (code == null)
+            if (userId < 0)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse("Invalid user code"));
             }
 
-            var (success, message) = await _applicationServices.UserService.DeleteUserAsync(code);
+            var (success, message) = await _applicationServices.UserService.DeleteUserAsync(userId);
+
+            if (!success)
+            {
+                if (message == "User not found")
+                    return NotFound(ApiResponse<object>.ErrorResponse(message));
+
+                return BadRequest(ApiResponse<object>.ErrorResponse(message));
+            }
+
+            return Ok(ApiResponse<object>.SuccessResponse(null, message));
+        }
+
+        /// <summary>
+        /// Update an existing user 
+        /// </summary>
+        /// <param name="userDto">User update data</param>
+        /// <response code="200">User updated successfully.</response>
+        /// <response code="400">Invalid request data or business rule violation.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Only admins can update users.</response>
+        /// <response code="404">User not found.</response>
+        [HttpPatch]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUserStatus( [FromBody] UserStatusUpdateDto userDto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Invalid request data",
+                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
+            }
+
+            var (success, message) = await _applicationServices.UserService.UpdateUserStatusAsync(userDto);
 
             if (!success)
             {

@@ -91,7 +91,7 @@ namespace SWP391.Services.UserServices
         /// <summary>
         /// Create a new user
         /// </summary>
-        public async Task<(bool Success, string Message, UserDto Data)> CreateUserAsync(UserDto userDto)
+        public async Task<(bool Success, string Message, UserDto Data)> CreateUserAsync(UserCreateDto userDto)
         {
             if (userDto == null)
                 return (false, "User data cannot be null", null);
@@ -173,16 +173,14 @@ namespace SWP391.Services.UserServices
         /// <summary>
         /// Delete a user (soft delete by marking as inactive)
         /// </summary>
-        public async Task<(bool Success, string Message)> DeleteUserAsync(string code)
+        public async Task<(bool Success, string Message)> DeleteUserAsync(int id)
         {
-            var existingUser = await _unitOfWork.UserRepository.GetByUserCodeAsync(code);
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(id);
             if (existingUser == null)
                 return (false, "User not found");
 
-            // Soft delete - set status to Inactive
-            existingUser.Status = "Inactive";
 
-            _unitOfWork.UserRepository.Update(existingUser);
+            _unitOfWork.UserRepository.RemoveAsync(existingUser);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
             return (true, "User deleted successfully");
@@ -191,12 +189,12 @@ namespace SWP391.Services.UserServices
         /// <summary>
         /// Update an existing user
         /// </summary>
-        public async Task<(bool Success, string Message)> UpdateUserAsync(string userCode, UserUpdateDto userDto)
+        public async Task<(bool Success, string Message)> UpdateUserAsync(int userId, UserUpdateDto userDto)
         {
             if (userDto == null)
                 return (false, "User data cannot be null");
 
-            var existingUser = await _unitOfWork.UserRepository.GetByUserCodeAsync(userCode);
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             if (existingUser == null)
                 return (false, "User not found");
 
@@ -210,10 +208,14 @@ namespace SWP391.Services.UserServices
             if (userDto.RoleId > 0)
                 existingUser.RoleId = userDto.RoleId;
 
-            existingUser.DepartmentId = userDto.DepartmentId;
+            if(!string.IsNullOrWhiteSpace(userDto.UserCode))
+                existingUser.UserCode = userDto.UserCode;
 
-            if (!string.IsNullOrWhiteSpace(userDto.Status))
-                existingUser.Status = userDto.Status;
+            if (userDto.DepartmentId > 0)
+                existingUser.DepartmentId = userDto.DepartmentId;
+
+            if (!string.IsNullOrWhiteSpace(userDto.Email))
+                existingUser.Email = userDto.Email;
 
             _unitOfWork.UserRepository.Update(existingUser);
             await _unitOfWork.SaveChangesWithTransactionAsync();
@@ -221,5 +223,20 @@ namespace SWP391.Services.UserServices
             return (true, "User updated successfully");
         }
 
+        public async Task<(bool Success, string Message)> UpdateUserStatusAsync( UserStatusUpdateDto userDto )
+        {
+            if (userDto == null)
+                return (false, "User data cannot be null");
+
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userDto.UserId);
+            if (existingUser == null)
+                return (false, "User not found");
+
+            if(!string.IsNullOrWhiteSpace(userDto.Status))
+                existingUser.Status = userDto.Status;
+
+            _unitOfWork.UserRepository.Update(existingUser);
+            return (true, "User updated successfully");
+        }
     }
 }

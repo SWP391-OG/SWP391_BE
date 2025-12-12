@@ -32,9 +32,9 @@ namespace SWP391.Services.CategoryServices
             return (true, "Category created successfully", categoryDto);
         }
 
-        public async Task<(bool Success, string Message)> DeleteCategoryByCodeAsync(string categoryCode)
+        public async Task<(bool Success, string Message)> DeleteCategoryByCodeAsync(int categoryId)
         {
-            var existingCode = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(categoryCode);
+            var existingCode = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
             if (existingCode == null)
                 return (false, "Category code doesn't exists");
             await _unitOfWork.CategoryRepository.RemoveAsync(existingCode);
@@ -70,7 +70,7 @@ namespace SWP391.Services.CategoryServices
 
         public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(CategoryStatusUpdateDto dto)
         {
-            var category = await _unitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(dto.CategoryId);
 
 
             if (category == null)

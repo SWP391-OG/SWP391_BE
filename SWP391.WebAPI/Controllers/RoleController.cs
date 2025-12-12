@@ -107,7 +107,7 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update room
+        /// Update role
         /// </summary>
         /// <param name="role" >Search and pagination parameters (query string)</param>
         /// <response code="200">Returns paginated role.</response>

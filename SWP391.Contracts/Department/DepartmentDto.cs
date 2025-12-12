@@ -27,7 +27,7 @@ namespace SWP391.Contracts.Department
 
     public class DepartmentStatusUpdateDto
     {
-        public string DeptCode { get; set; } = string.Empty;
+        public int Id { get; set; }
         public string Status { get; set; } = string.Empty;
     }
 }

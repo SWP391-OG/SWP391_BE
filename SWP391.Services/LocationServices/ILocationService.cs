@@ -16,7 +16,7 @@ namespace SWP391.Services.LocationServices
         Task<(bool Success, string Message, LocationDto Data)> CreateLocationAsync(LocationRequestDto dto);
         Task<(bool Success, string Message)> UpdateLocationAsync(int locationId,LocationRequestDto dto);
         Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto);
-        Task<(bool Success, string Message)> DeleteLocationByCodeAsync(string locationCode);
+        Task<(bool Success, string Message)> DeleteLocationByCodeAsync(int locationId);
 
 
     }

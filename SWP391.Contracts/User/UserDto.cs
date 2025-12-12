@@ -8,6 +8,7 @@ namespace SWP391.Contracts.User
 {
     public class UserDto
     {
+        public int Id { get; set; }
         public string UserCode { get; set; } = string.Empty;
 
         public string FullName { get; set; } = string.Empty;
@@ -48,6 +49,7 @@ namespace SWP391.Contracts.User
 
     public class UserCreateDto
     {
+        public string UserCode { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -57,14 +59,19 @@ namespace SWP391.Contracts.User
         public string Status { get; set; } = string.Empty;
     }
 
-
-
     public class UserUpdateDto
     {
         public string FullName { get; set; } = string.Empty;
+        public string UserCode { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public int? DepartmentId { get; set; }
+    }
+
+    public class UserStatusUpdateDto
+    {
+        public int UserId { get; set; }
         public string Status { get; set; } = string.Empty;
     }
 }

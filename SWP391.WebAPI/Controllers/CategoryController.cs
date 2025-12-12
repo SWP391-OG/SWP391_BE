@@ -167,15 +167,15 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteCategoryByCode([FromQuery] string categoryCode)
+        public async Task<IActionResult> DeleteCategoryByCode([FromQuery] int categoryId)
         {
-            if (string.IsNullOrWhiteSpace(categoryCode))
+            if (categoryId < 0)
             {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Category code is required"));
+                return BadRequest(ApiResponse<object>.ErrorResponse("Category code is invalid"));
             }
 
             var (success, message) = await _applicationServices
-                .CategoryService.DeleteCategoryByCodeAsync(categoryCode);
+                .CategoryService.DeleteCategoryByCodeAsync(categoryId);
 
             if (!success)
             {

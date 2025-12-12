@@ -15,6 +15,6 @@ namespace SWP391.Services.DepartmentServices
         Task<(bool Success, string Message, DepartmentDto Data)> CreateDepartmentAsync(DepartmentRequestDto dto);
         Task<(bool Success, string Message)> UpdateDepartmentAsync(int departmentId,DepartmentRequestDto dto);
         Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(DepartmentStatusUpdateDto dto);
-        Task<(bool Success, string Message)> DeleteDepartmentByCodeAsync(string departmentCode);
+        Task<(bool Success, string Message)> DeleteDepartmentByCodeAsync(int departmentId);
     }
 }

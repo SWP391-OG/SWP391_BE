@@ -185,7 +185,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteDepartmentByCode([FromQuery] string departmentCode)
+        public async Task<IActionResult> DeleteDepartmentByCode([FromQuery] int departmentId)
         {
             if (!ModelState.IsValid)
             {
@@ -194,7 +194,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .DepartmentService.DeleteDepartmentByCodeAsync(departmentCode);
+                .DepartmentService.DeleteDepartmentByCodeAsync(departmentId);
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));

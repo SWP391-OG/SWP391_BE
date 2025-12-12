@@ -8,6 +8,7 @@ namespace SWP391.Contracts.Category
 {
     public class CategoryDto
     {
+        public int Id { get; set; }
         public string CategoryCode { get; set; } = string.Empty;
 
         public string CategoryName { get; set; } = string.Empty;
@@ -32,7 +33,7 @@ namespace SWP391.Contracts.Category
 
     public class CategoryStatusUpdateDto
     {
-        public string CategoryCode { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
         public string Status { get; set; } = string.Empty;
     }
 }

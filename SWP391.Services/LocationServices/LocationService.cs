@@ -62,9 +62,9 @@ namespace SWP391.Services.LocationServices
             return (true, "Location created successfully", locationDto);
         }
 
-        public async Task<(bool Success, string Message)> DeleteLocationByCodeAsync(string locationCode)
+        public async Task<(bool Success, string Message)> DeleteLocationByCodeAsync(int locationId)
         {
-            var existingCode = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(locationCode);
+            var existingCode = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
             if (existingCode == null)
                 return (false, "Location code doesn't exists");
             await _unitOfWork.LocationRepository.RemoveAsync(existingCode);
@@ -114,7 +114,7 @@ namespace SWP391.Services.LocationServices
 
         public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto)
         {
-            var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
+            var location = await _unitOfWork.LocationRepository.GetByIdAsync(dto.Id);
 
             if (location == null)
             {
