@@ -207,9 +207,13 @@ namespace SWP391.Services.UserServices
             if (!string.IsNullOrWhiteSpace(userDto.PhoneNumber))
                 existingUser.PhoneNumber = userDto.PhoneNumber;
 
-            existingUser.RoleId = userDto.RoleId;
+            if (userDto.RoleId > 0)
+                existingUser.RoleId = userDto.RoleId;
+
             existingUser.DepartmentId = userDto.DepartmentId;
-            existingUser.Status = userDto.Status;
+
+            if (!string.IsNullOrWhiteSpace(userDto.Status))
+                existingUser.Status = userDto.Status;
 
             _unitOfWork.UserRepository.Update(existingUser);
             await _unitOfWork.SaveChangesWithTransactionAsync();

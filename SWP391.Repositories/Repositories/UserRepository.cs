@@ -27,10 +27,7 @@ namespace SWP391.Repositories.Repositories
 
         public async Task<User?> GetByUserCodeAsync(string userCode)
         {
-            return await _context.Set<User>()
-                .Include(u => u.Role)
-                .Include(u => u.Department)
-                .FirstOrDefaultAsync(u => u.UserCode == userCode);
+            return await _context.Set<User>().FirstOrDefaultAsync(u => u.UserCode == userCode);
         }
     }
 }
