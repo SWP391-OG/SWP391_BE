@@ -94,11 +94,11 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update an existing category
         /// </summary>
-        /// <param name="dto">Category update data</param>
+        /// <param name="categoryId">Category update data</param>
         /// <response code="200">Category updated successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="404">Category not found.</response>
-        [HttpPut]
+        [HttpPut("{categoryId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
@@ -158,11 +158,11 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Delete a category by code
         /// </summary>
-        /// <param name="categoryCode">The category code to delete</param>
+        /// <param name="categoryId">The category code to delete</param>
         /// <response code="200">Category deleted successfully.</response>
         /// <response code="400">Invalid request or business rule violation.</response>
         /// <response code="404">Category not found.</response>
-        [HttpDelete]
+        [HttpDelete("{categoryId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]

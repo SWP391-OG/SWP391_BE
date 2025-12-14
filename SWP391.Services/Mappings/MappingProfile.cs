@@ -90,7 +90,8 @@ namespace SWP391.Services.Mappings
             CreateMap<Notification, NotificationDto>()
                 .ForMember(dest => dest.TicketCode, opt => opt.MapFrom(src => src.TicketCode ?? string.Empty));
 
-            CreateMap<Campus, CampusDto>();
+            CreateMap<Campus, CampusDto>()
+                .ForMember(dest => dest.CampusId, opt => opt.MapFrom(src => src.Id.ToString()));
         }
     }
 }

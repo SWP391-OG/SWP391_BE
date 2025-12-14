@@ -167,7 +167,7 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can update users.</response>
         /// <response code="404">User not found.</response>
-        [HttpPut]
+        [HttpPut("{userId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
@@ -206,7 +206,7 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can delete users.</response>
         /// <response code="404">User not found.</response>
-        [HttpDelete]
+        [HttpDelete("{userId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
