@@ -456,15 +456,6 @@ namespace SWP391.Services.TicketServices
             return _mapper.Map<TicketDto>(ticket);
         }
 
-        /// <summary>
-        /// Get tickets by status
-        /// </summary>
-        public async Task<List<TicketDto>> GetTicketsByStatusAsync(string status)
-        {
-            var tickets = await _unitOfWork.TicketRepository.GetTicketsByStatusAsync(status);
-            return _mapper.Map<List<TicketDto>>(tickets);
-        }
-
         #endregion
 
         #region Helper Methods
@@ -517,6 +508,10 @@ namespace SWP391.Services.TicketServices
             if (category == null)
                 return (false, new List<TicketDto>());
 
+            // Resolve Location to check for facility duplicates
+            var location = await _unitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
+            int? locationId = location?.Id;
+
             // Check for tickets created in the last 7 days
             var createdAfter = DateTime.UtcNow.AddDays(-7);
 
@@ -524,6 +519,7 @@ namespace SWP391.Services.TicketServices
                 requesterId,
                 dto.Title,
                 category.Id,
+                locationId,
                 createdAfter);
 
             var duplicateDtos = _mapper.Map<List<TicketDto>>(duplicates);

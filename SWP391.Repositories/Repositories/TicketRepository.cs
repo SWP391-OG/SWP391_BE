@@ -123,57 +123,6 @@ namespace SWP391.Repositories.Repositories
 
         #endregion
 
-        #region Legacy Methods (Backward Compatibility)
-
-        public async Task<List<Ticket>> GetAllTicketsAsync()
-        {
-            return await _context.Tickets
-                .Include(t => t.Requester)
-                .Include(t => t.AssignedToNavigation)
-                .Include(t => t.ManagedByNavigation)
-                .Include(t => t.Location)
-                .Include(t => t.Category)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<List<Ticket>> GetTicketsByRequesterIdAsync(int requesterId)
-        {
-            return await _context.Tickets
-                .Include(t => t.Requester)
-                .Include(t => t.AssignedToNavigation)
-                .Include(t => t.Location)
-                .Include(t => t.Category)
-                .Where(t => t.RequesterId == requesterId)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<List<Ticket>> GetTicketsByAssignedToAsync(int staffId)
-        {
-            return await _context.Tickets
-                .Include(t => t.Requester)
-                .Include(t => t.Location)
-                .Include(t => t.Category)
-                .Where(t => t.AssignedTo == staffId)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
-        }
-
-        public async Task<List<Ticket>> GetTicketsByStatusAsync(string status)
-        {
-            return await _context.Tickets
-                .Include(t => t.Requester)
-                .Include(t => t.AssignedToNavigation)
-                .Include(t => t.Location)
-                .Include(t => t.Category)
-                .Where(t => t.Status == status)
-                .OrderByDescending(t => t.CreatedAt)
-                .ToListAsync();
-        }
-
-        #endregion
-
         #region Other Methods
 
         public async Task<int> GetActiveTicketCountByStaffIdAsync(int staffId)
@@ -285,23 +234,31 @@ namespace SWP391.Repositories.Repositories
         }
 
         /// <summary>
-        /// Check for potential duplicate tickets (same requester, similar title, same category, created recently)
+        /// Check for potential duplicate tickets (same requester OR same location, similar title, same category, created recently)
         /// </summary>
         public async Task<List<Ticket>> CheckForDuplicateTicketsAsync(
             int requesterId,
             string title,
             int categoryId,
+            int? locationId,
             DateTime createdAfter)
         {
+            var searchTitle = title.ToLower().Trim();
+
             return await _context.Tickets
                 .Include(t => t.Category)
                 .Include(t => t.Location)
-                .Where(t => t.RequesterId == requesterId &&
-                            t.CategoryId == categoryId &&
-                            t.Title.ToLower().Contains(title.ToLower()) &&
+                .Where(t => t.CategoryId == categoryId &&
                             t.CreatedAt >= createdAfter &&
                             t.Status != "CANCELLED" &&
-                            t.Status != "CLOSED")
+                            t.Status != "CLOSED" &&
+                            // Logic: Match (Same User) OR (Same Location + Similar Title)
+                            (
+                                t.RequesterId == requesterId || 
+                                (locationId.HasValue && t.LocationId == locationId.Value)
+                            ) &&
+                            // Bidirectional title check: "Wifi broken" matches "Wifi" and vice versa
+                            (t.Title.ToLower().Contains(searchTitle) || searchTitle.Contains(t.Title.ToLower())))
                 .ToListAsync();
         }
 

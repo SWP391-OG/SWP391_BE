@@ -6,7 +6,7 @@ namespace SWP391.Repositories.Interfaces
     {
         Task<Ticket?> GetTicketByCodeAsync(string ticketCode);
         
-        // Pagination methods - all use the same 3 filters (TicketCode, Status, Priority)
+        // Pagination methods
         Task<(List<Ticket> Items, int TotalCount)> GetAllTicketsWithPaginationAsync(
             int pageNumber, 
             int pageSize, 
@@ -30,20 +30,16 @@ namespace SWP391.Repositories.Interfaces
             string? status,
             string? priority);
 
-        // Legacy methods (kept for backward compatibility)
-        Task<List<Ticket>> GetAllTicketsAsync();
-        Task<List<Ticket>> GetTicketsByRequesterIdAsync(int requesterId);
-        Task<List<Ticket>> GetTicketsByAssignedToAsync(int staffId);
-        Task<List<Ticket>> GetTicketsByStatusAsync(string status);
-        
         // Other methods
         Task<int> GetActiveTicketCountByStaffIdAsync(int staffId);
         Task<List<(string StaffCode, string StaffName, int ActiveTicketCount, string DepartmentCode)>> GetStaffWorkloadByDepartmentCodeAsync(string deptCode);
         Task<bool> HasUserProvidedFeedbackAsync(string ticketCode);
         
-        // New methods
+        // Overdue & Duplicate methods
         Task<List<Ticket>> GetOverdueTicketsAsync();
         Task<List<Ticket>> GetOverdueTicketsByStaffIdAsync(int staffId);
-        Task<List<Ticket>> CheckForDuplicateTicketsAsync(int requesterId, string title, int categoryId, DateTime createdAfter);
+        
+        // UPDATED: Added locationId parameter
+        Task<List<Ticket>> CheckForDuplicateTicketsAsync(int requesterId, string title, int categoryId, int? locationId, DateTime createdAfter);
     }
 }
