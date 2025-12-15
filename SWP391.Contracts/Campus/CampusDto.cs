@@ -8,6 +8,7 @@ namespace SWP391.Contracts.Campus
 {
     public class CampusDto
     {
+        public string CampusId { get; set; } = string.Empty;
         public string CampusCode { get; set; } = string.Empty;
 
         public string CampusName { get; set; } = string.Empty;

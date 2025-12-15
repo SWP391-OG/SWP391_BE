@@ -165,7 +165,7 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can update users.</response>
         /// <response code="404">User not found.</response>
-        [HttpPut]
+        [HttpPut("{userId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
@@ -198,13 +198,13 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Delete a user (soft delete - sets status to Inactive) (Admin only)
         /// </summary>
-        /// <param name="id">The user ID to delete</param>
+        /// <param name="userId">The user ID to delete</param>
         /// <response code="200">User deleted successfully.</response>
         /// <response code="400">Invalid user ID or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can delete users.</response>
         /// <response code="404">User not found.</response>
-        [HttpDelete]
+        [HttpDelete("{userId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
