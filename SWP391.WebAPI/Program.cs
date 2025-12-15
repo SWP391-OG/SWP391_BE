@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,7 +54,17 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+
+// Register specialized ticket services
+builder.Services.AddScoped<TicketValidationService>();
+builder.Services.AddScoped<StudentTicketService>();
+builder.Services.AddScoped<AdminTicketService>();
+builder.Services.AddScoped<StaffTicketService>();
+builder.Services.AddScoped<TicketQueryService>();
+
+// Register facade (orchestrator) - this implements ITicketService
 builder.Services.AddScoped<ITicketService, TicketService>();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICampusService,CampusService>();
