@@ -184,6 +184,17 @@ namespace SWP391.WebAPI.Controllers
                 return HandleAuthenticationError();
             }
 
+            // Before creating the ticket
+            var (hasDuplicates, potentialDuplicates) = await _applicationServices
+                .TicketService.CheckForDuplicatesAsync(dto, userId.Value);
+
+            if (hasDuplicates && potentialDuplicates.Any())
+            {
+                return BadRequest(ApiResponse<object>.ErrorResponse(
+                    "Potential duplicate tickets found. Please check existing tickets before creating a new one.",
+                    potentialDuplicates.Select(t => t.TicketCode).ToList()));
+            }
+
             var (success, message, data) = await _applicationServices
                 .TicketService.CreateTicketAsync(dto, userId.Value);
 

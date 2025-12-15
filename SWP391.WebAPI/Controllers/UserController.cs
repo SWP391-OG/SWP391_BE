@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.User;
-using SWP391.Repositories.Models;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
 using System.Security.Claims;
@@ -110,7 +108,7 @@ namespace SWP391.WebAPI.Controllers
         public async Task<IActionResult> UpdateUserProfile(UserUpdateProfileDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var (success, message) = await _applicationServices.UserService.UpdateProfileUserAsync(int.Parse(userIdClaim),userDto);
+            var (success, message) = await _applicationServices.UserService.UpdateProfileUserAsync(int.Parse(userIdClaim), userDto);
 
             if (!success)
             {
@@ -173,8 +171,8 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles = "Admin")]    
-        public async Task<IActionResult> UpdateUser( int userId,[FromBody] UserUpdateDto userDto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserUpdateDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!ModelState.IsValid)
@@ -249,7 +247,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUserStatus( [FromBody] UserStatusUpdateDto userDto)
+        public async Task<IActionResult> UpdateUserStatus([FromBody] UserStatusUpdateDto userDto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!ModelState.IsValid)
