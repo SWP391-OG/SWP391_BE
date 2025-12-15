@@ -252,13 +252,17 @@ namespace SWP391.WebAPI.Controllers
 
         /// <summary>
         /// Staff updates ticket status (ASSIGNED → IN_PROGRESS → RESOLVED)
+        /// Business Rules:
+        /// - ASSIGNED → IN_PROGRESS: Staff starts working (no notes required)
+        /// - IN_PROGRESS → RESOLVED: Resolution notes REQUIRED in request body
+        /// - Staff CANNOT cancel tickets (only Student/Admin can)
         /// </summary>
         /// <param name="ticketCode">The ticket code</param>
-        /// <param name="dto">Status update data</param>
+        /// <param name="dto">Status update data (Status + optional ResolutionNotes)</param>
         /// <response code="200">Status updated successfully.</response>
-        /// <response code="400">Invalid status transition or business rule violation.</response>
+        /// <response code="400">Invalid status transition, missing resolution notes, or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Only staff can update status.</response>
+        /// <response code="403">Forbidden - Only staff can update status, and only their assigned tickets.</response>
         [HttpPatch("{ticketCode}/status")]
         [Authorize(Roles = "Staff")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]

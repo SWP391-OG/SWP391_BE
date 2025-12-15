@@ -16,6 +16,11 @@ namespace SWP391.Services.TicketServices
     /// - Update ticket status (ASSIGNED → IN_PROGRESS → RESOLVED)
     /// - View assigned tickets
     /// - View overdue tickets
+    /// 
+    /// Business Rules:
+    /// - Staff CANNOT cancel tickets (only Student/Admin can)
+    /// - ASSIGNED → IN_PROGRESS: No notes required (just start working)
+    /// - IN_PROGRESS → RESOLVED: Resolution notes REQUIRED (must explain what was done)
     /// </summary>
     public class StaffTicketService : BaseTicketService
     {
@@ -33,8 +38,10 @@ namespace SWP391.Services.TicketServices
         }
 
         /// <summary>
-        /// Updates ticket status with validation for allowed transitions.
-        /// Valid transitions: ASSIGNED → IN_PROGRESS → RESOLVED or CANCELLED
+        /// Updates ticket status with business rule enforcement:
+        /// - ASSIGNED → IN_PROGRESS: Staff starts working (no notes required)
+        /// - IN_PROGRESS → RESOLVED: Staff completes work (resolution notes REQUIRED)
+        /// - Staff CANNOT cancel tickets
         /// </summary>
         public async Task<(bool Success, string Message)> UpdateTicketStatusAsync(
             string ticketCode, UpdateTicketStatusDto dto, int staffId)
@@ -50,25 +57,52 @@ namespace SWP391.Services.TicketServices
 
             var newStatus = dto.Status.ToUpper();
 
-            // Validate status transition
+            // Prevent idempotent updates
+            if (ticket.Status == newStatus)
+                return (false, $"Ticket is already in {newStatus} status");
+
+            // Validate status transition (will reject CANCELLED attempts)
             if (!_validationService.IsValidStatusTransition(ticket.Status, newStatus))
             {
                 var errorMessage = _validationService.GetStatusTransitionError(ticket.Status, newStatus);
+                Logger.LogWarning(
+                    "Invalid status transition attempted by staff {StaffId} for ticket {TicketCode}: {CurrentStatus} → {NewStatus}",
+                    staffId, ticketCode, ticket.Status, newStatus);
                 return (false, errorMessage);
+            }
+
+            // Business Rule: IN_PROGRESS → RESOLVED requires resolution notes
+            if (ticket.Status == "IN_PROGRESS" && newStatus == "RESOLVED")
+            {
+                if (string.IsNullOrWhiteSpace(dto.ResolutionNotes))
+                {
+                    Logger.LogWarning(
+                        "Staff {StaffId} attempted to resolve ticket {TicketCode} without providing resolution notes",
+                        staffId, ticketCode);
+                    return (false, "Resolution notes are required when marking a ticket as RESOLVED. Please explain what was done to resolve the issue.");
+                }
+
+                // Store resolution notes in the Note field
+                ticket.Note = string.IsNullOrWhiteSpace(ticket.Note)
+                    ? $"[RESOLVED BY STAFF] {dto.ResolutionNotes}"
+                    : $"{ticket.Note}\n[RESOLVED BY STAFF] {dto.ResolutionNotes}";
+                
+                ticket.ResolvedAt = DateTime.UtcNow;
+                
+                Logger.LogInformation(
+                    "Ticket {TicketCode} resolved by staff {StaffId}. Resolution: {ResolutionNotes}",
+                    ticketCode, staffId, dto.ResolutionNotes);
+            }
+            else if (ticket.Status == "ASSIGNED" && newStatus == "IN_PROGRESS")
+            {
+                // No additional notes required when starting work
+                Logger.LogInformation(
+                    "Staff {StaffId} started working on ticket {TicketCode}",
+                    staffId, ticketCode);
             }
 
             // Update status
             ticket.Status = newStatus;
-
-            // Set appropriate timestamps
-            if (newStatus == "RESOLVED")
-            {
-                ticket.ResolvedAt = DateTime.UtcNow;
-            }
-            else if (newStatus == "CANCELLED")
-            {
-                ticket.ClosedAt = DateTime.UtcNow;
-            }
 
             UnitOfWork.TicketRepository.Update(ticket);
             await UnitOfWork.SaveChangesWithTransactionAsync();
@@ -76,9 +110,12 @@ namespace SWP391.Services.TicketServices
             // Notify student (non-blocking)
             try
             {
+                var notificationMessage = newStatus == "RESOLVED"
+                    ? $"Your ticket has been resolved. Resolution: {dto.ResolutionNotes}"
+                    : $"Your ticket status has been updated to {newStatus}";
+
                 await NotificationService.NotifyStudentOfTicketUpdateAsync(
-                    ticket.RequesterId, ticketCode,
-                    $"Your ticket status has been updated to {newStatus}");
+                    ticket.RequesterId, ticketCode, notificationMessage);
             }
             catch (Exception ex)
             {
@@ -87,7 +124,8 @@ namespace SWP391.Services.TicketServices
                     ticket.RequesterId, ticketCode);
             }
 
-            Logger.LogInformation("Ticket {TicketCode} status updated to {NewStatus} by staff {StaffId}",
+            Logger.LogInformation(
+                "Ticket {TicketCode} status updated to {NewStatus} by staff {StaffId}",
                 ticketCode, newStatus, staffId);
 
             return (true, $"Ticket status updated to {newStatus}");

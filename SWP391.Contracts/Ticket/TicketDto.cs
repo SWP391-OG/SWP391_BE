@@ -49,7 +49,8 @@ namespace SWP391.Contracts.Ticket
     // Update ticket status (generic for state transitions)
     public class UpdateTicketStatusDto
     {
-        public string Status { get; set; } = string.Empty; // ASSIGNED, IN_PROGRESS, RESOLVED, CANCELLED
+        public string Status { get; set; } = string.Empty; // IN_PROGRESS, RESOLVED
+        public string? ResolutionNotes { get; set; } // REQUIRED when transitioning to RESOLVED
     }
 
     // Student provides feedback

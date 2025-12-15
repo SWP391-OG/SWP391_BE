@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SWP391.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,13 +41,15 @@ namespace SWP391.Services.TicketServices
 
         /// <summary>
         /// Validates if a status transition is allowed for staff operations.
+        /// ✅ Staff can: ASSIGNED → IN_PROGRESS → RESOLVED
+        /// ❌ Staff cannot: Cancel tickets (only Student/Admin can)
         /// </summary>
         public bool IsValidStatusTransition(string currentStatus, string newStatus)
         {
             var validTransitions = new Dictionary<string, string[]>
             {
-                { "ASSIGNED", new[] { "IN_PROGRESS", "CANCELLED" } },
-                { "IN_PROGRESS", new[] { "RESOLVED", "CANCELLED" } }
+                { "ASSIGNED", new[] { "IN_PROGRESS" } }, // Staff starts work
+                { "IN_PROGRESS", new[] { "RESOLVED" } } // Staff completes work
             };
 
             return validTransitions.ContainsKey(currentStatus) &&
@@ -60,7 +62,13 @@ namespace SWP391.Services.TicketServices
         public string GetStatusTransitionError(string currentStatus, string newStatus)
         {
             if (!IsValidStatusTransition(currentStatus, newStatus))
-                return $"Invalid status transition from {currentStatus} to {newStatus}";
+            {
+                // Special message for CANCELLED attempts
+                if (newStatus == "CANCELLED")
+                    return "Staff cannot cancel tickets. Please contact an administrator if the ticket needs to be cancelled.";
+                
+                return $"Invalid status transition from {currentStatus} to {newStatus}. Allowed transitions: ASSIGNED → IN_PROGRESS → RESOLVED";
+            }
 
             return string.Empty;
         }
