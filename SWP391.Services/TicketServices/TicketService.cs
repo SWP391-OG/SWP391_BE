@@ -37,6 +37,26 @@ namespace SWP391.Services.TicketServices
             if (location == null)
                 return (false, "Location not found", null);
 
+            // ✅ CHECK FOR DUPLICATES (reusing already-fetched category and location)
+            var createdAfter = DateTime.UtcNow.AddDays(-7);
+            var duplicates = await _unitOfWork.TicketRepository.CheckForDuplicateTicketsAsync(
+                requesterId,
+                dto.Title,
+                category.Id,
+                location.Id,
+                createdAfter);
+
+            if (duplicates.Any())
+            {
+                var duplicateCodes = duplicates.Select(t => t.TicketCode).ToList();
+                var duplicateDtos = _mapper.Map<List<TicketDto>>(duplicates);
+                
+                // Return the duplicate tickets in a structured way
+                return (false, 
+                    $"Potential duplicate tickets found: {string.Join(", ", duplicateCodes)}. Please check existing tickets before creating a new one.",
+                    null);
+            }
+
             // Create ticket
             var ticket = new Ticket
             {
@@ -48,7 +68,7 @@ namespace SWP391.Services.TicketServices
                 LocationId = location.Id,
                 CategoryId = category.Id,
                 Status = "NEW",
-                ContactPhone = string.Empty, // Will be set when staff is assigned
+                ContactPhone = string.Empty,
                 Note = string.Empty,
                 CreatedAt = DateTime.UtcNow,
                 ResolveDeadline = CalculateResolveDeadline(category.SlaResolveHours ?? 24)
@@ -61,8 +81,15 @@ namespace SWP391.Services.TicketServices
             var createdTicket = await _unitOfWork.TicketRepository.GetTicketByCodeAsync(ticket.TicketCode);
             var ticketDto = _mapper.Map<TicketDto>(createdTicket);
 
-            // Notify admins of new ticket
-            await _notificationService.NotifyAdminsOfNewTicketAsync(ticket.TicketCode, ticket.Title);
+            // Send notifications after transaction
+            try
+            {
+                await _notificationService.NotifyAdminsOfNewTicketAsync(ticket.TicketCode, ticket.Title);
+            }
+            catch 
+            {
+                // Log but don't fail ticket creation
+            }
 
             return (true, "Ticket created successfully", ticketDto);
         }
@@ -465,7 +492,9 @@ namespace SWP391.Services.TicketServices
         /// </summary>
         private string GenerateTicketCode()
         {
-            return "TKT" + DateTime.UtcNow.Ticks.ToString().Substring(8);
+            var timestamp = DateTime.UtcNow.Ticks.ToString().Substring(8);
+            var random = new Random().Next(1000, 9999);
+            return $"TKT{timestamp}{random}";
         }
 
         /// <summary>
