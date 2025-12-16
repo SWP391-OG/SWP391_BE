@@ -11,5 +11,6 @@ namespace SWP391.Repositories.Interfaces
     {
         Task<Department?> GetDepartmentByCodeAsync(string code);
         Task<Department?> GetDepartmentByNameAsync(string name);
+        Task<List<Department>> GetAllActiveDepartmentAsync();
     }
 }

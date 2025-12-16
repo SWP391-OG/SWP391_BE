@@ -173,16 +173,17 @@ namespace SWP391.Services.UserServices
         /// <summary>
         /// Delete a user (soft delete by marking as inactive)
         /// </summary>
-        public async Task<(bool Success, string Message)> DeleteUserAsync(int id)
+        public async Task<(bool Success, string Message)> DeleteUserAsync(int userId)
         {
-            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if(userId < 0)
+                return (false, "Invalid user ID");
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             if (existingUser == null)
                 return (false, "User not found");
+            existingUser.Status = "INACTIVE";
 
-
-            _unitOfWork.UserRepository.RemoveAsync(existingUser);
-            await _unitOfWork.SaveChangesWithTransactionAsync();
-
+            _unitOfWork.UserRepository.Update(existingUser);
+      
             return (true, "User deleted successfully");
         }
 
@@ -223,17 +224,22 @@ namespace SWP391.Services.UserServices
             return (true, "User updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateUserStatusAsync( UserStatusUpdateDto userDto )
+        public async Task<(bool Success, string Message)> UpdateUserStatusAsync( int userId)
         {
-            if (userDto == null)
-                return (false, "User data cannot be null");
+           if(userId <= 0)
+                return (false, "Invalid user ID");
 
-            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userDto.UserId);
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userId);
             if (existingUser == null)
                 return (false, "User not found");
-
-            if(!string.IsNullOrWhiteSpace(userDto.Status))
-                existingUser.Status = userDto.Status;
+            if(existingUser.Status == "ACTIVE")
+            {
+                existingUser.Status = "INACTIVE";
+            }
+            else
+            {
+                existingUser.Status = "ACTIVE";
+            }
 
             _unitOfWork.UserRepository.Update(existingUser);
             return (true, "User updated successfully");

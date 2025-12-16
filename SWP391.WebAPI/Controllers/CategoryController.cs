@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Category;
 using SWP391.Contracts.Common;
+using SWP391.Contracts.Department;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
+using System.Security.Claims;
 
 namespace SWP391.WebAPI.Controllers
 {
@@ -29,11 +31,25 @@ namespace SWP391.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllCategory()
         {
-            var categories = await _applicationServices.CategoryService.GetAllCategoryAsync();
-
-            if (categories == null || !categories.Any())
+          
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            var departments = new List<DepartmentDto>();
+            var categories = new List<CategoryDto>();
+            if (userRoleClaim == "Admin")
             {
-                return NotFound(ApiResponse<object>.ErrorResponse("No categories found"));
+                categories = await _applicationServices.CategoryService.GetAllCategoryAsync();
+                if (categories == null || !categories.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
+            }
+            else
+            {
+                categories = await _applicationServices.CategoryService.GetAllActiveCategoriesAsync();
+                if (categories == null || !categories.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
             }
 
             return Ok(ApiResponse<List<CategoryDto>>.SuccessResponse(categories, "Categories retrieved successfully"));
@@ -113,7 +129,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .CategoryService.UpdateCategoryAsync(categoryId,dto);
+                .CategoryService.UpdateCategoryAsync(categoryId, dto);
 
             if (!success)
             {
@@ -126,16 +142,16 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update category status (ACTIVE or INACTIVE)
         /// </summary>
-        /// <param name="dto">Update Category Status (ACTIVE or INACTIVE)</param>
+        /// <param name="categoryId">Update Category Status (ACTIVE or INACTIVE)</param>
         /// <response code="200">Category status updated successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="404">Category not found.</response>
-        [HttpPatch("status")]
+        [HttpPatch("{categoryId}")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategoryStatus([FromBody] CategoryStatusUpdateDto dto)
+        public async Task<IActionResult> UpdateCategoryStatus(int categoryId)
         {
             if (!ModelState.IsValid)
             {
@@ -145,7 +161,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .CategoryService.UpdateStatusCategoryAsync(dto);
+                .CategoryService.UpdateStatusCategoryAsync(categoryId);
 
             if (!success)
             {
@@ -167,15 +183,10 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteCategoryByCode(int categoryId)
+        public async Task<IActionResult> DeleteCategory(int categoryId)
         {
-            if (categoryId < 0)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Category code is invalid"));
-            }
-
             var (success, message) = await _applicationServices
-                .CategoryService.DeleteCategoryByCodeAsync(categoryId);
+                .CategoryService.DeleteCategoryAsync(categoryId);
 
             if (!success)
             {

@@ -48,7 +48,7 @@ namespace SWP391.Services.LocationServices
                 LocationCode = dto.LocationCode,
                 LocationName = dto.LocationName,
                 CampusId = dto.CampusId,
-                Status = "Active",
+                Status = "ACTIVE",
                 CreatedAt = DateTime.UtcNow,
                 Campus = campus  // ✅ Set Campus navigation property
             };
@@ -67,8 +67,15 @@ namespace SWP391.Services.LocationServices
             var existingCode = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
             if (existingCode == null)
                 return (false, "Location code doesn't exists");
-            await _unitOfWork.LocationRepository.RemoveAsync(existingCode);
+            existingCode.Status = "INACTIVE"; // Soft delete by setting status to Inactive
+             _unitOfWork.LocationRepository.Update(existingCode);
             return (true, "Location deleted successfully");
+        }
+
+        public async Task<List<LocationDto>> GetAllActiveLocationsAsync()
+        {
+            var locations = await _unitOfWork.LocationRepository.GetAllActiveLocationsAsync();
+            return _mapper.Map<List<LocationDto>>(locations);
         }
 
         // ✅ Load locations with Campus data
@@ -112,22 +119,34 @@ namespace SWP391.Services.LocationServices
             return (true, "Location updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto)
+        public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(int locationId)
         {
-            var location = await _unitOfWork.LocationRepository.GetByIdAsync(dto.Id);
+            if(locationId <= 0)
+            {
+                return (false, "Invalid location ID");
+            }
+
+            var location = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
 
             if (location == null)
             {
                 return (false, "Location not found");
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.Status))
-                location.Status = dto.Status;
+            if(location.Status == "ACTIVE")
+            {
+                location.Status = "INACTIVE";
+            }
+            else
+            {
+              location.Status = "ACTIVE";
+            }
 
             _unitOfWork.LocationRepository.Update(location);
-            await _unitOfWork.SaveChangesWithTransactionAsync();
-
+         
             return (true, "Location status updated successfully");
         }
+
+        
     }
 }

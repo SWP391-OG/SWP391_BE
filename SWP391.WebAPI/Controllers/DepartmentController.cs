@@ -6,6 +6,7 @@ using SWP391.Contracts.Location;
 using SWP391.Repositories.Models;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
+using System.Security.Claims;
 
 namespace SWP391.WebAPI.Controllers
 {
@@ -36,15 +37,28 @@ namespace SWP391.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllDepartmentCode()
         {
-            var departments = await _applicationServices.DepartmentService.GetAllDepartmentsAsync();
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            var departments = new List<DepartmentDto>();
 
-            if (departments == null || !departments.Any())
+            if (userRoleClaim == "Admin")
             {
-                return NotFound(ApiResponse<object>.ErrorResponse("No department found"));
+                departments = await _applicationServices.DepartmentService.GetAllDepartmentsAsync();
+                if (departments == null || !departments.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
+            }
+            else
+            {
+                departments = await _applicationServices.DepartmentService.GetAllActiveDepartmentAsync();
+                if (departments == null || !departments.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
             }
 
             return Ok(ApiResponse<List<DepartmentDto>>.SuccessResponse(departments, "Department retrieved successfully"));
-
+       
         }
 
         /// <summary>
@@ -147,13 +161,13 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpPatch("status")]
+        [HttpDelete("{departmentId}")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateDepartmentStatus([FromBody] DepartmentStatusUpdateDto dto)
+        public async Task<IActionResult> DeleteDepartmentAsync(int departmentId)
         {
             if (!ModelState.IsValid)
             {
@@ -162,7 +176,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .DepartmentService.UpdateStatusDepartmentAsync(dto);
+                .DepartmentService.DeleteDepartmentAsync(departmentId);
 
             if (!success)
             {
@@ -180,13 +194,13 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpDelete("{departmentId}")]
+        [HttpPatch("{departmentId}")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteDepartmentByCode(int departmentId)
+        public async Task<IActionResult> UpdateStatusDepartment(int departmentId)
         {
             if (!ModelState.IsValid)
             {
@@ -195,7 +209,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .DepartmentService.DeleteDepartmentByCodeAsync(departmentId);
+                .DepartmentService.UpdateStatusDepartmentAsync(departmentId);
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));

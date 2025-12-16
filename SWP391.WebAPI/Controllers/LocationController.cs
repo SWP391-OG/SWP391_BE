@@ -4,6 +4,7 @@ using SWP391.Contracts.Common;
 using SWP391.Contracts.Location;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
+using System.Security.Claims;
 
 
 namespace SWP391.WebAPI.Controllers
@@ -35,12 +36,26 @@ namespace SWP391.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllLocationCode()
         {
-            var locations = await _applicationServices.LocationService.GetAllLocationsAsync();
-            if (locations == null || !locations.Any())
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            var locations = new List<LocationDto>(); 
+            if(userRoleClaim == "Admin" )
             {
-                return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                 locations = await _applicationServices.LocationService.GetAllLocationsAsync();
+                if (locations == null || !locations.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
             }
-            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
+            else
+            {
+                 locations = await _applicationServices.LocationService.GetAllActiveLocationsAsync();
+                if (locations == null || !locations.Any())
+                {
+                    return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
+                }
+            }
+            
+                return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
         }
 
         /// <summary>
@@ -143,13 +158,13 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpPatch("status")]
+        [HttpPatch("status/{locationId}")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateLocationStatus([FromBody] LocationStatusUpdateDto dto)
+        public async Task<IActionResult> UpdateLocationStatus(int locationId)
         {
             if (!ModelState.IsValid)
             {
@@ -158,7 +173,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .LocationService.UpdateStatusLocationAsync(dto);
+                .LocationService.UpdateStatusLocationAsync(locationId);
 
             if (!success)
             {

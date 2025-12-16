@@ -6,5 +6,6 @@ namespace SWP391.Repositories.Interfaces
     {
         Task<Category?> GetCategoryByCodeAsync(string code);
         Task<Category?> GetCategoryByNameAsync(string name);
+        Task<List<Category>> GetAllActiveCategoriesAsync();
     }
 }

@@ -24,6 +24,15 @@ namespace SWP391.Services.DepartmentServices
 
         public async Task<(bool Success, string Message, DepartmentDto Data)> CreateDepartmentAsync(DepartmentRequestDto dto)
         {
+            if (string.IsNullOrWhiteSpace(dto.DeptCode))
+            {
+                return (false, "Department code is required", null);
+            }
+            if (string.IsNullOrWhiteSpace(dto.DeptName))
+            {
+                return (false, "Department name is required", null);
+            }
+
             var existingCode = await _unitOfWork.DepartmentRepository.GetDepartmentByCodeAsync(dto.DeptCode);
             if (existingCode != null)
                 return (false, "Location code already exists", null);
@@ -39,12 +48,19 @@ namespace SWP391.Services.DepartmentServices
             return (true, "Department created successfully", deparmentDto);
         }
 
-        public async Task<(bool Success, string Message)> DeleteDepartmentByCodeAsync(int departmentId)
+        public async Task<(bool Success, string Message)> DeleteDepartmentAsync(int departmentId)
         {
+            if(departmentId <= 0)
+            {
+                return (false, "Invalid department ID");
+            }
+
             var existingCode = await _unitOfWork.DepartmentRepository.GetByIdAsync(departmentId);
             if (existingCode == null)
                 return (false, "Department code doesn't exists");
-            await _unitOfWork.DepartmentRepository.RemoveAsync(existingCode);
+            existingCode.Status = "INACTIVE";
+
+             _unitOfWork.DepartmentRepository.Update(existingCode);
             return (true, "Department deleted successfully");
         }
 
@@ -75,6 +91,14 @@ namespace SWP391.Services.DepartmentServices
             {
                 return (false, "Department not found");
             }
+            if (string.IsNullOrWhiteSpace(dto.DeptCode))
+            {
+                return (false, "Department code is required");
+            }
+            if (string.IsNullOrWhiteSpace(dto.DeptName))
+            {
+                return (false, "Department name is required");
+            }
             department.DeptCode = dto.DeptCode;
             department.DeptName = dto.DeptName;
 
@@ -85,18 +109,45 @@ namespace SWP391.Services.DepartmentServices
 
 
 
-        public async Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(DepartmentStatusUpdateDto dto)
+        public async Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(int departmentId)
         {
-            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(dto.Id);
+            if(departmentId <= 0)
+            {
+                return (false, "Invalid department ID");
+            }
+
+            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(departmentId);
 
             if (department == null)
             {
                 return (false, "Department not found");
             }
-            department.Status = dto.Status;
+            if(department.Status == "ACTIVE")
+            {
+                department.Status = "INACTIVE";
+            }
+            else
+            {
+                department.Status = "ACTIVE";
+            }
+           
             _unitOfWork.DepartmentRepository.Update(department);
 
             return (true, "Department status updated successfully");
+        }
+
+        public async Task<List<DepartmentDto>> GetAllActiveDepartmentAsync()
+        {
+            var departments = await _unitOfWork.DepartmentRepository.GetAllActiveDepartmentAsync();
+            var exis = new List<DepartmentDto>();
+            DepartmentDto existLocation;
+            foreach (var department in departments)
+            {
+                existLocation = _mapper.Map<DepartmentDto>(department);
+                exis.Add(existLocation);
+            }
+
+            return exis;
         }
 
     }

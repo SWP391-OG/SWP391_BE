@@ -32,13 +32,26 @@ namespace SWP391.Services.CategoryServices
             return (true, "Category created successfully", categoryDto);
         }
 
-        public async Task<(bool Success, string Message)> DeleteCategoryByCodeAsync(int categoryId)
+        public async Task<(bool Success, string Message)> DeleteCategoryAsync(int categoryId)
         {
+            if(categoryId <= 0)
+            {
+                return (false, "Invalid category ID");
+            }
+
             var existingCode = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
             if (existingCode == null)
                 return (false, "Category code doesn't exists");
-            await _unitOfWork.CategoryRepository.RemoveAsync(existingCode);
+
+           existingCode.Status = "INACTIVE"; // Soft delete by setting status to Inactive
+            await _unitOfWork.CategoryRepository.UpdateAsync(existingCode);
             return (true, "Category deleted successfully");
+        }
+
+        public async Task<List<CategoryDto>> GetAllActiveCategoriesAsync()
+        {
+            var categories = await _unitOfWork.CategoryRepository.GetAllActiveCategoriesAsync();
+            return _mapper.Map<List<CategoryDto>>(categories);
         }
 
         public async Task<List<CategoryDto>> GetAllCategoryAsync()
@@ -68,19 +81,33 @@ namespace SWP391.Services.CategoryServices
             return (true, "Category updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(CategoryStatusUpdateDto dto)
+        public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(int categoryId)
         {
-            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(dto.CategoryId);
-
-
+            if(categoryId <= 0)
+            {
+                return (false, "Invalid category ID");
+            }
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
+   
             if (category == null)
             {
                 return (false, "Category not found");
             }
-            category.Status = dto.Status;
+
+            if(category.Status == "ACTIVE")
+            {
+                category.Status = "INACTIVE";
+            }
+            else
+            {
+                category.Status = "ACTIVE";
+            }
+            
             _unitOfWork.CategoryRepository.Update(category);
 
             return (true, "Category status updated successfully");
         }
+
+
     }
 }

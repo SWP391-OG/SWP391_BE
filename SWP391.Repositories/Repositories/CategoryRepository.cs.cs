@@ -12,17 +12,27 @@ namespace SWP391.Repositories.Repositories
 
         public CategoryRepository(FPTechnicalContext context) => _context = context;
 
+        public async Task<List<Category>> GetAllActiveCategoriesAsync()
+        {
+           var categories = _context.Categories
+                .Where(l => l.Status == "ACTIVE")
+                .ToListAsync();
+            return await categories;
+        }
+
         public async Task<Category?> GetCategoryByCodeAsync(string code)
         {
-            var location = await _context.Categories.FirstOrDefaultAsync(d => d.CategoryCode == code);
-            return location;
+            var category = await _context.Categories.FirstOrDefaultAsync(d => d.CategoryCode == code);
+            return category;
         }
 
         public async Task<Category?> GetCategoryByNameAsync(string name)
         {
-            var location = await _context.Categories.FirstOrDefaultAsync(d => d.CategoryName == name);
-            return location;
+            var category = await _context.Categories.FirstOrDefaultAsync(d => d.CategoryName == name);
+            return category;
         }
+
+        
     }
 
 }

@@ -28,5 +28,13 @@ namespace SWP391.Repositories.Repositories
             var department = await _context.Departments.FirstOrDefaultAsync(d => d.DeptName == name);
             return department;
         }
+
+        public async Task<List<Department>> GetAllActiveDepartmentAsync()
+        {
+            var departments = await _context.Departments
+                .Where(l => l.Status == "ACTIVE")
+                .ToListAsync();
+            return departments;
+        }
     }
 }

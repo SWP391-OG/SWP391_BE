@@ -18,6 +18,6 @@ namespace SWP391.Services.UserServices
         Task<(bool Success, string Message, UserDto Data)> CreateUserAsync(UserCreateDto userDto);
         Task<(bool Success, string Message)> UpdateUserAsync(int userId, UserUpdateDto userDto);
         Task<(bool Success, string Message)> DeleteUserAsync(int userId);
-        Task<(bool Success, string Message)> UpdateUserStatusAsync(UserStatusUpdateDto dto);
+        Task<(bool Success, string Message)> UpdateUserStatusAsync(int userId);
     }
 }
