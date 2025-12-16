@@ -81,28 +81,20 @@ namespace SWP391.Services.CategoryServices
             return (true, "Category updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(int categoryId)
+        public async Task<(bool Success, string Message)> UpdateStatusCategoryAsync(CategoryStatusUpdateDto dto)
         {
-            if(categoryId <= 0)
+            if(dto.CategoryId <= 0)
             {
                 return (false, "Invalid category ID");
             }
-            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(dto.CategoryId);
    
             if (category == null)
             {
                 return (false, "Category not found");
             }
+            category.Status = dto.Status;
 
-            if(category.Status == "ACTIVE")
-            {
-                category.Status = "INACTIVE";
-            }
-            else
-            {
-                category.Status = "ACTIVE";
-            }
-            
             _unitOfWork.CategoryRepository.Update(category);
 
             return (true, "Category status updated successfully");

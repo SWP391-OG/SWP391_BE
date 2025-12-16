@@ -14,7 +14,7 @@ namespace SWP391.Services.DepartmentServices
         Task<DepartmentDto> GetByDepartmentCodeAsync(string departmentCode);
         Task<(bool Success, string Message, DepartmentDto Data)> CreateDepartmentAsync(DepartmentRequestDto dto);
         Task<(bool Success, string Message)> UpdateDepartmentAsync(int departmentId,DepartmentRequestDto dto);
-        Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(int departmentId);
+        Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(DepartmentStatusUpdateDto dto);
         Task<(bool Success, string Message)> DeleteDepartmentAsync(int departmentId);
         Task<List<DepartmentDto>> GetAllActiveDepartmentAsync();
 

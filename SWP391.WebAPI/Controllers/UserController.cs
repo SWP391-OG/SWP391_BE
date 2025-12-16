@@ -234,20 +234,20 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update an existing user 
         /// </summary>
-        /// <param name="userId">User update data</param>
+        /// <param name="dto">User update data</param>
         /// <response code="200">User updated successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can update users.</response>
         /// <response code="404">User not found.</response>
-        [HttpPatch("{userId}")]
+        [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUserStatus(int userId)
+        public async Task<IActionResult> UpdateUserStatus(UserStatusUpdateDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!ModelState.IsValid)
@@ -257,7 +257,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
 
-            var (success, message) = await _applicationServices.UserService.UpdateUserStatusAsync(userId);
+            var (success, message) = await _applicationServices.UserService.UpdateUserStatusAsync(dto);
 
             if (!success)
             {

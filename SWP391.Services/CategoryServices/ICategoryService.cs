@@ -9,7 +9,7 @@ namespace SWP391.Services.CategoryServices
         Task<CategoryDto> GetByCategoryCodeAsync(string categoryCode);
         Task<(bool Success, string Message, CategoryDto Data)> CreateCategoryAsync(CategoryRequestDto dto);
         Task<(bool Success, string Message)> UpdateCategoryAsync(int categpryId ,CategoryRequestDto dto);
-        Task<(bool Success, string Message)> UpdateStatusCategoryAsync(int categoryId);
+        Task<(bool Success, string Message)> UpdateStatusCategoryAsync(CategoryStatusUpdateDto dto);
         Task<(bool Success, string Message)> DeleteCategoryAsync(int locationId);
         Task<List<CategoryDto>> GetAllActiveCategoriesAsync();
     }

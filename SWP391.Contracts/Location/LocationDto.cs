@@ -25,7 +25,7 @@ namespace SWP391.Contracts.Location
 
     public class LocationStatusUpdateDto
     {
-        public int Id { get; set; }
+        public int LocationId { get; set; }
         public string Status { get; set; } = string.Empty;
     }
 }

@@ -109,28 +109,21 @@ namespace SWP391.Services.DepartmentServices
 
 
 
-        public async Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(int departmentId)
+        public async Task<(bool Success, string Message)> UpdateStatusDepartmentAsync(DepartmentStatusUpdateDto dto)
         {
-            if(departmentId <= 0)
+            if(dto.DepartmentId <= 0)
             {
                 return (false, "Invalid department ID");
             }
 
-            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(departmentId);
+            var department = await _unitOfWork.DepartmentRepository.GetByIdAsync(dto.DepartmentId);
 
             if (department == null)
             {
                 return (false, "Department not found");
             }
-            if(department.Status == "ACTIVE")
-            {
-                department.Status = "INACTIVE";
-            }
-            else
-            {
-                department.Status = "ACTIVE";
-            }
-           
+            department.Status = dto.Status;
+
             _unitOfWork.DepartmentRepository.Update(department);
 
             return (true, "Department status updated successfully");

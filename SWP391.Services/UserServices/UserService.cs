@@ -224,22 +224,15 @@ namespace SWP391.Services.UserServices
             return (true, "User updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateUserStatusAsync( int userId)
+        public async Task<(bool Success, string Message)> UpdateUserStatusAsync(UserStatusUpdateDto dto)
         {
-           if(userId <= 0)
+           if(dto.UserId <= 0)
                 return (false, "Invalid user ID");
 
-            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(userId);
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(dto.UserId);
             if (existingUser == null)
                 return (false, "User not found");
-            if(existingUser.Status == "ACTIVE")
-            {
-                existingUser.Status = "INACTIVE";
-            }
-            else
-            {
-                existingUser.Status = "ACTIVE";
-            }
+           existingUser.Status = dto.Status;
 
             _unitOfWork.UserRepository.Update(existingUser);
             return (true, "User updated successfully");

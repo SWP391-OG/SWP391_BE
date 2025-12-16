@@ -158,13 +158,13 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpPatch("status/{locationId}")]
+        [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateLocationStatus(int locationId)
+        public async Task<IActionResult> UpdateLocationStatus(LocationStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -173,7 +173,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .LocationService.UpdateStatusLocationAsync(locationId);
+                .LocationService.UpdateStatusLocationAsync(dto);
 
             if (!success)
             {

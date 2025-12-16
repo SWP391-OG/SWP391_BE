@@ -119,29 +119,20 @@ namespace SWP391.Services.LocationServices
             return (true, "Location updated successfully");
         }
 
-        public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(int locationId)
+        public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto)
         {
-            if(locationId <= 0)
+            if(dto.LocationId <= 0)
             {
                 return (false, "Invalid location ID");
             }
 
-            var location = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
+            var location = await _unitOfWork.LocationRepository.GetByIdAsync(dto.LocationId);
 
             if (location == null)
             {
                 return (false, "Location not found");
             }
-
-            if(location.Status == "ACTIVE")
-            {
-                location.Status = "INACTIVE";
-            }
-            else
-            {
-              location.Status = "ACTIVE";
-            }
-
+            location.Status = dto.Status;
             _unitOfWork.LocationRepository.Update(location);
          
             return (true, "Location status updated successfully");

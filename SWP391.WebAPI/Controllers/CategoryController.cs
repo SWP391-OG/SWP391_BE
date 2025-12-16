@@ -142,16 +142,16 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Update category status (ACTIVE or INACTIVE)
         /// </summary>
-        /// <param name="categoryId">Update Category Status (ACTIVE or INACTIVE)</param>
+        /// <param name="dto">Update Category Status (ACTIVE or INACTIVE)</param>
         /// <response code="200">Category status updated successfully.</response>
         /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="404">Category not found.</response>
-        [HttpPatch("{categoryId}")]
+        [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategoryStatus(int categoryId)
+        public async Task<IActionResult> UpdateCategoryStatus(CategoryStatusUpdateDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -161,7 +161,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-                .CategoryService.UpdateStatusCategoryAsync(categoryId);
+                .CategoryService.UpdateStatusCategoryAsync(dto);
 
             if (!success)
             {
