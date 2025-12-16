@@ -181,7 +181,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteLocationByCode([FromQuery] int locationId)
+        public async Task<IActionResult> DeleteLocation(int locationId)
         {
             if (!ModelState.IsValid)
             {
@@ -190,7 +190,7 @@ namespace SWP391.WebAPI.Controllers
                     ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
             }
             var (success, message) = await _applicationServices
-                .LocationService.DeleteLocationByCodeAsync(locationId);
+                .LocationService.DeleteLocationByIdAsync(locationId);
             if (!success)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));

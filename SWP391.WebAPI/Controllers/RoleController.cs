@@ -152,7 +152,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteRole([FromQuery] int roleId)
+        public async Task<IActionResult> DeleteRole(int roleId)
         {
             var (success, message) = await _applicationServices
                 .RoleService.DeleteRoleAsync(roleId);

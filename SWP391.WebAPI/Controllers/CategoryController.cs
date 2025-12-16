@@ -167,7 +167,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteCategoryByCode([FromQuery] int categoryId)
+        public async Task<IActionResult> DeleteCategoryByCode(int categoryId)
         {
             if (categoryId < 0)
             {
