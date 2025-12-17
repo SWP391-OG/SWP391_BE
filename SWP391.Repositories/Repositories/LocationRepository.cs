@@ -55,5 +55,14 @@ namespace SWP391.Repositories.Repositories
                 .ToListAsync();
             return locations;
         }
+
+        public async Task<List<Location>> GetLocationsByCampusCodeAsync(string campusCode)
+        {
+            var locations = await _context.Locations
+              .Include(l => l.Campus)
+              .Where(l => l.Campus.CampusCode == campusCode && l.Status == "ACTIVE")
+              .ToListAsync();
+            return locations;
+        }
     }
-    }
+}

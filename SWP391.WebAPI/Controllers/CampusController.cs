@@ -69,34 +69,34 @@ namespace SWP391.WebAPI.Controllers
             return Ok(ApiResponse<CampusDto>.SuccessResponse(campus, "Campus retrieved successfully"));
         }
 
-        /// <summary>
-        /// Get all locations by campus code
-        /// </summary>
-        /// <param name="campusCode">The campus code</param>
-        /// <response code="200">Returns all locations for the campus.</response>
-        /// <response code="400">Invalid campus code.</response>
-        /// <response code="404">Campus not found or no locations available.</response>
-        [HttpGet("{campusCode}/locations")]
-        [ProducesResponseType(typeof(ApiResponse<List<LocationDto>>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize]
-        public async Task<IActionResult> GetLocationsByCampusCode(string campusCode)
-        {
-            if (string.IsNullOrWhiteSpace(campusCode))
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Campus code cannot be empty"));
-            }
+        ///// <summary>
+        ///// Get all locations by campus code
+        ///// </summary>
+        ///// <param name="campusCode">The campus code</param>
+        ///// <response code="200">Returns all locations for the campus.</response>
+        ///// <response code="400">Invalid campus code.</response>
+        ///// <response code="404">Campus not found or no locations available.</response>
+        //[HttpGet("{campusCode}/locations")]
+        //[ProducesResponseType(typeof(ApiResponse<List<LocationDto>>), ApiStatusCode.OK)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        //[Authorize]
+        //public async Task<IActionResult> GetLocationsByCampusCode(string campusCode)
+        //{
+        //    if (string.IsNullOrWhiteSpace(campusCode))
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse("Campus code cannot be empty"));
+        //    }
 
-            var locations = await _applicationServices.CampusService.GetLocationsByCampusCodeAsync(campusCode);
+        //    var locations = await _applicationServices.CampusService.GetLocationsByCampusCodeAsync(campusCode);
 
-            if (locations == null || !locations.Any())
-            {
-                return NotFound(ApiResponse<object>.ErrorResponse("No locations found for this campus"));
-            }
+        //    if (locations == null || !locations.Any())
+        //    {
+        //        return NotFound(ApiResponse<object>.ErrorResponse("No locations found for this campus"));
+        //    }
 
-            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, 
-                $"Retrieved {locations.Count} locations for campus '{campusCode}'"));
-        }
+        //    return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, 
+        //        $"Retrieved {locations.Count} locations for campus '{campusCode}'"));
+        //}
     }
 }

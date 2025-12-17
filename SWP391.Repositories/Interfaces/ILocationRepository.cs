@@ -9,5 +9,6 @@ namespace SWP391.Repositories.Interfaces
         Task<Location?> GetLocationByCodeWithCampusAsync(string code);
         Task<List<Location>> GetAllLocationsWithCampusAsync();
         Task<List<Location>> GetAllActiveLocationsAsync();
+        Task<List<Location>> GetLocationsByCampusCodeAsync(string code);
     }
 }

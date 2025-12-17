@@ -213,6 +213,31 @@ namespace SWP391.WebAPI.Controllers
             return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
         }
 
+        /// <summary>
+        /// Get room by code
+        /// </summary>
+        /// <param name="campusCode">Search and pagination parameters (query string)</param>
+        /// <response code="200">Returns paginated location.</response>
+        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
+        /// <response code="403">Forbidden - Insufficient permissions.</response>
+        [HttpGet("get-by/{campusCode}")]
+        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [Authorize]
+        public async Task<IActionResult> GetByCampusCode(string campusCode)
+        {
+            var locations = await _applicationServices.LocationService.GetLocationsByCampusCodeAsync(campusCode);
+            if (locations == null)
+            {
+                return NotFound(ApiResponse<object>.ErrorResponse("No location found"));
+            }
+            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Location retrieved successfully"));
+        }
+
+
 
     }
 }

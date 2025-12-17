@@ -92,6 +92,12 @@ namespace SWP391.Services.LocationServices
             return _mapper.Map<LocationDto>(location);
         }
 
+        public async Task<List<LocationDto>> GetLocationsByCampusCodeAsync(string campusCode)
+        {
+           var locations =  await _unitOfWork.LocationRepository.GetLocationsByCampusCodeAsync(campusCode);
+            return _mapper.Map<List<LocationDto>>(locations);
+        }
+
         public async Task<(bool Success, string Message)> UpdateLocationAsync(int locationId, LocationRequestDto dto)
         {
             var location = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
