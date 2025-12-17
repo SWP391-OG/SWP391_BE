@@ -118,6 +118,8 @@ namespace SWP391.Services.LocationServices
 
             if (!string.IsNullOrWhiteSpace(dto.LocationName))
                 location.LocationName = dto.LocationName;
+            if (!string.IsNullOrWhiteSpace(dto.LocationCode))
+                location.LocationCode = dto.LocationCode;
 
             _unitOfWork.LocationRepository.Update(location);
             await _unitOfWork.SaveChangesWithTransactionAsync();
