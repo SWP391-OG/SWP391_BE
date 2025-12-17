@@ -31,13 +31,18 @@ namespace SWP391.Services.Mappings
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
 
             // User to UserDto mapping
-            CreateMap<User, UserDto>();
+            CreateMap<User, UserDto>()
+                .ForMember(dest => dest.DepartmentId,opt => opt.MapFrom(src => src.DepartmentId))
+                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src =>src.Department != null? src.Department.DeptName: null));
             CreateMap<UserDto, User>()
-                .ForMember(dest => dest.Department, opt => opt.Ignore())
+                .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => src.DepartmentId))
+                .ForMember(dest => dest.Department,opt => opt.Ignore())
                 .ForMember(dest => dest.Role, opt => opt.Ignore())
                 .ForMember(dest => dest.TicketAssignedToNavigations, opt => opt.Ignore())
                 .ForMember(dest => dest.TicketManagedByNavigations, opt => opt.Ignore())
-                .ForMember(dest => dest.TicketRequesters, opt => opt.Ignore());
+                .ForMember(dest => dest.TicketRequesters, opt => opt.Ignore())
+             
+            ;
 
             // ? Location mappings with Campus information
             CreateMap<Location, LocationDto>()

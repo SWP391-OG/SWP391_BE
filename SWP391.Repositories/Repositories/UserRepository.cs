@@ -29,5 +29,12 @@ namespace SWP391.Repositories.Repositories
         {
             return await _context.Set<User>().FirstOrDefaultAsync(u => u.UserCode == userCode);
         }
+
+        public async Task<List<User>> GetAllUsersWithDepartment()
+        {
+            return await _context.Set<User>()
+                .Include(u => u.Department)
+                .ToListAsync();
+        }
     }
 }

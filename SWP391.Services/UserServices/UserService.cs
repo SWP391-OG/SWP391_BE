@@ -21,8 +21,10 @@ namespace SWP391.Services.UserServices
         /// </summary>
         public async Task<List<UserDto>> GetAllUsersAsync()
         {
-            var users = await _unitOfWork.UserRepository.GetAllAsync();
+            var users = await _unitOfWork.UserRepository.GetAllUsersWithDepartment();
+           
             var userDtos = _mapper.Map<List<UserDto>>(users);
+         
             return userDtos;
         }
 
@@ -217,6 +219,9 @@ namespace SWP391.Services.UserServices
 
             if (!string.IsNullOrWhiteSpace(userDto.Email))
                 existingUser.Email = userDto.Email;
+
+            if (!string.IsNullOrWhiteSpace(userDto.PasswordHash))
+                existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.PasswordHash);
 
             _unitOfWork.UserRepository.Update(existingUser);
             await _unitOfWork.SaveChangesWithTransactionAsync();

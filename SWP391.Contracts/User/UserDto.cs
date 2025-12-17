@@ -20,8 +20,9 @@ namespace SWP391.Contracts.User
         public string PhoneNumber { get; set; } = string.Empty;
 
         public int RoleId { get; set; }
-
         public int? DepartmentId { get; set; }
+
+        public string? DepartmentName { get; set; }
 
         public string Status { get; set; } = string.Empty;
 
@@ -67,6 +68,7 @@ namespace SWP391.Contracts.User
         public string PhoneNumber { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public int? DepartmentId { get; set; }
+        public string? PasswordHash { get; set; } = string.Empty;
     }
 
     public class UserStatusUpdateDto
@@ -74,4 +76,6 @@ namespace SWP391.Contracts.User
         public int UserId { get; set; }
         public string Status { get; set; } = string.Empty;
     }
+
+
 }
