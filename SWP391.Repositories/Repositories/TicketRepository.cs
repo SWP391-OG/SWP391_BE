@@ -235,6 +235,7 @@ namespace SWP391.Repositories.Repositories
 
         /// <summary>
         /// Check for potential duplicate tickets (same category AND same location, similar title, created recently)
+        /// Only checks active/in-progress tickets: NEW, ASSIGNED, IN_PROGRESS
         /// </summary>
         public async Task<List<Ticket>> CheckForDuplicateTicketsAsync(
             int requesterId,
@@ -245,13 +246,15 @@ namespace SWP391.Repositories.Repositories
         {
             var searchTitle = title.ToLower().Trim();
 
+            // Only check tickets that are truly "active" (not yet resolved)
+            var activeStatuses = new[] { "NEW", "ASSIGNED", "IN_PROGRESS" };
+
             return await _context.Tickets
                 .Include(t => t.Category)
                 .Include(t => t.Location)
                 .Where(t => t.CategoryId == categoryId &&
                             t.CreatedAt >= createdAfter &&
-                            t.Status != "CANCELLED" &&
-                            t.Status != "CLOSED" &&
+                            activeStatuses.Contains(t.Status) &&
                             // Both same category AND same location required
                             locationId.HasValue && t.LocationId == locationId.Value &&
                             // Bidirectional title check: "Wifi broken" matches "Wifi" and vice versa

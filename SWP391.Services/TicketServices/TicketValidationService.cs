@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using SWP391.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SWP391.Services.TicketServices
 {
@@ -24,8 +21,9 @@ namespace SWP391.Services.TicketServices
         /// <summary>
         /// Checks for duplicate tickets within 7-day window based on:
         /// - Same category
-        /// - Same location OR same requester
+        /// - Same location (required)
         /// - Similar title (bidirectional match)
+        /// - Status is NEW, ASSIGNED, or IN_PROGRESS (excludes RESOLVED, CANCELLED, CLOSED)
         /// </summary>
         public async Task<(bool HasDuplicates, List<string> DuplicateCodes)> CheckForDuplicatesAsync(
             int requesterId, string title, int categoryId, int locationId)
@@ -66,7 +64,7 @@ namespace SWP391.Services.TicketServices
                 // Special message for CANCELLED attempts
                 if (newStatus == "CANCELLED")
                     return "Staff cannot cancel tickets. Please contact an administrator if the ticket needs to be cancelled.";
-                
+
                 return $"Invalid status transition from {currentStatus} to {newStatus}. Allowed transitions: ASSIGNED → IN_PROGRESS → RESOLVED";
             }
 
