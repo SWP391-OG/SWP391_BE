@@ -234,7 +234,7 @@ namespace SWP391.Repositories.Repositories
         }
 
         /// <summary>
-        /// Check for potential duplicate tickets (same requester OR same location, similar title, same category, created recently)
+        /// Check for potential duplicate tickets (same category AND same location, similar title, created recently)
         /// </summary>
         public async Task<List<Ticket>> CheckForDuplicateTicketsAsync(
             int requesterId,
@@ -252,11 +252,8 @@ namespace SWP391.Repositories.Repositories
                             t.CreatedAt >= createdAfter &&
                             t.Status != "CANCELLED" &&
                             t.Status != "CLOSED" &&
-                            // Logic: Match (Same User) OR (Same Location + Similar Title)
-                            (
-                                t.RequesterId == requesterId || 
-                                (locationId.HasValue && t.LocationId == locationId.Value)
-                            ) &&
+                            // Both same category AND same location required
+                            locationId.HasValue && t.LocationId == locationId.Value &&
                             // Bidirectional title check: "Wifi broken" matches "Wifi" and vice versa
                             (t.Title.ToLower().Contains(searchTitle) || searchTitle.Contains(t.Title.ToLower())))
                 .ToListAsync();
