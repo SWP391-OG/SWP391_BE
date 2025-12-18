@@ -31,7 +31,7 @@ namespace SWP391.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllCategory()
         {
-          
+
             var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
             var departments = new List<DepartmentDto>();
             var categories = new List<CategoryDto>();
@@ -178,22 +178,22 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="200">Category deleted successfully.</response>
         /// <response code="400">Invalid request or business rule violation.</response>
         /// <response code="404">Category not found.</response>
-        [HttpDelete("{categoryId}")]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteCategory(int categoryId)
-        {
-            var (success, message) = await _applicationServices
-                .CategoryService.DeleteCategoryAsync(categoryId);
+        //[HttpDelete("{categoryId}")]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> DeleteCategory(int categoryId)
+        //{
+        //    var (success, message) = await _applicationServices
+        //        .CategoryService.DeleteCategoryAsync(categoryId);
 
-            if (!success)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(message));
-            }
+        //    if (!success)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(message));
+        //    }
 
-            return Ok(ApiResponse<object>.SuccessResponse(null, message));
-        }
+        //    return Ok(ApiResponse<object>.SuccessResponse(null, message));
+        //}
     }
 }

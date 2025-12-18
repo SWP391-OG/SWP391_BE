@@ -37,10 +37,10 @@ namespace SWP391.WebAPI.Controllers
         public async Task<IActionResult> GetAllLocationCode()
         {
             var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
-            var locations = new List<LocationDto>(); 
-            if(userRoleClaim == "Admin" )
+            var locations = new List<LocationDto>();
+            if (userRoleClaim == "Admin")
             {
-                 locations = await _applicationServices.LocationService.GetAllLocationsAsync();
+                locations = await _applicationServices.LocationService.GetAllLocationsAsync();
                 if (locations == null || !locations.Any())
                 {
                     return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
@@ -48,14 +48,14 @@ namespace SWP391.WebAPI.Controllers
             }
             else
             {
-                 locations = await _applicationServices.LocationService.GetAllActiveLocationsAsync();
+                locations = await _applicationServices.LocationService.GetAllActiveLocationsAsync();
                 if (locations == null || !locations.Any())
                 {
                     return NotFound(ApiResponse<object>.ErrorResponse("No locations found"));
                 }
             }
-            
-                return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
+
+            return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateLocation(int locationId,[FromBody] LocationRequestDto dto)
+        public async Task<IActionResult> UpdateLocation(int locationId, [FromBody] LocationRequestDto dto)
         {
 
             if (!ModelState.IsValid)
@@ -140,7 +140,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             var (success, message) = await _applicationServices
-               .LocationService.UpdateLocationAsync(locationId,dto);
+               .LocationService.UpdateLocationAsync(locationId, dto);
 
             if (!success)
             {
@@ -190,28 +190,28 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpDelete("{locationId}")]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteLocation(int locationId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    ApiMessages.INVALID_REQUEST_DATA,
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
-            }
-            var (success, message) = await _applicationServices
-                .LocationService.DeleteLocationByIdAsync(locationId);
-            if (!success)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(message));
-            }
-            return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
-        }
+        //[HttpDelete("{locationId}")]
+        //[ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> DeleteLocation(int locationId)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(
+        //            ApiMessages.INVALID_REQUEST_DATA,
+        //            ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
+        //    }
+        //    var (success, message) = await _applicationServices
+        //        .LocationService.DeleteLocationByIdAsync(locationId);
+        //    if (!success)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(message));
+        //    }
+        //    return Ok(ApiResponse<LocationDto>.SuccessResponse(null, message));
+        //}
 
         /// <summary>
         /// Get room by code

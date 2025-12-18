@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Contracts.Common;
 using SWP391.Contracts.Department;
-using SWP391.Contracts.Location;
-using SWP391.Repositories.Models;
 using SWP391.Services.Application;
 using SWP391.WebAPI.Constants;
 using System.Security.Claims;
@@ -58,7 +56,7 @@ namespace SWP391.WebAPI.Controllers
             }
 
             return Ok(ApiResponse<List<DepartmentDto>>.SuccessResponse(departments, "Department retrieved successfully"));
-       
+
         }
 
         /// <summary>
@@ -161,30 +159,30 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="400">Invalid request parameters.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
-        [HttpDelete("{departmentId}")]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteDepartmentAsync(int departmentId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    ApiMessages.INVALID_REQUEST_DATA,
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
-            }
-            var (success, message) = await _applicationServices
-                .DepartmentService.DeleteDepartmentAsync(departmentId);
+        //[HttpDelete("{departmentId}")]
+        //[ProducesResponseType(typeof(ApiResponse<PaginatedResponse<DepartmentDto>>), ApiStatusCode.OK)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> DeleteDepartmentAsync(int departmentId)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(
+        //            ApiMessages.INVALID_REQUEST_DATA,
+        //            ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
+        //    }
+        //    var (success, message) = await _applicationServices
+        //        .DepartmentService.DeleteDepartmentAsync(departmentId);
 
-            if (!success)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(message));
-            }
+        //    if (!success)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(message));
+        //    }
 
-            return Ok(ApiResponse<DepartmentDto>.SuccessResponse(null, message));
-        }
+        //    return Ok(ApiResponse<DepartmentDto>.SuccessResponse(null, message));
+        //}
 
         /// <summary>
         /// Delete department

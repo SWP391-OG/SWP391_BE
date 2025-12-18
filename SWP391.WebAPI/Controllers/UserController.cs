@@ -204,32 +204,32 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Only admins can delete users.</response>
         /// <response code="404">User not found.</response>
-        [HttpDelete("{userId}")]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(int userId)
-        {
-            if (userId < 0)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse("Invalid user code"));
-            }
+        //[HttpDelete("{userId}")]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        //[ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
+        //[Authorize(Roles = "Admin")]
+        //public async Task<IActionResult> DeleteUser(int userId)
+        //{
+        //    if (userId < 0)
+        //    {
+        //        return BadRequest(ApiResponse<object>.ErrorResponse("Invalid user code"));
+        //    }
 
-            var (success, message) = await _applicationServices.UserService.DeleteUserAsync(userId);
+        //    var (success, message) = await _applicationServices.UserService.DeleteUserAsync(userId);
 
-            if (!success)
-            {
-                if (message == "User not found")
-                    return NotFound(ApiResponse<object>.ErrorResponse(message));
+        //    if (!success)
+        //    {
+        //        if (message == "User not found")
+        //            return NotFound(ApiResponse<object>.ErrorResponse(message));
 
-                return BadRequest(ApiResponse<object>.ErrorResponse(message));
-            }
+        //        return BadRequest(ApiResponse<object>.ErrorResponse(message));
+        //    }
 
-            return Ok(ApiResponse<object>.SuccessResponse(null, message));
-        }
+        //    return Ok(ApiResponse<object>.SuccessResponse(null, message));
+        //}
 
         /// <summary>
         /// Update an existing user 
