@@ -34,7 +34,6 @@ if (builder.Environment.IsDevelopment())
 // Configure DbContext with SQL Server
 builder.Services.AddDbContext<FPTechnicalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddSignalR();
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -67,7 +66,7 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<ICampusService,CampusService>();
+builder.Services.AddScoped<ICampusService, CampusService>();
 
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
