@@ -36,27 +36,5 @@ namespace SWP391.Services.TicketServices
             var ticket = await UnitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
             return Mapper.Map<TicketDto>(ticket);
         }
-
-        /// <summary>
-        /// Checks for duplicate tickets before creation.
-        /// </summary>
-        public async Task<(bool HasDuplicates, List<TicketDto> PotentialDuplicates)> CheckForDuplicatesAsync(
-            CreateTicketRequestDto dto, int requesterId)
-        {
-            var category = await UnitOfWork.CategoryRepository.GetCategoryByCodeAsync(dto.CategoryCode);
-            if (category == null)
-                return (false, new List<TicketDto>());
-
-            var location = await UnitOfWork.LocationRepository.GetLocationByCodeAsync(dto.LocationCode);
-            int? locationId = location?.Id;
-
-            var createdAfter = DateTime.UtcNow.AddDays(-7);
-
-            var duplicates = await UnitOfWork.TicketRepository.CheckForDuplicateTicketsAsync(
-                requesterId, dto.Title, category.Id, locationId, createdAfter);
-
-            var duplicateDtos = Mapper.Map<List<TicketDto>>(duplicates);
-            return (duplicates.Any(), duplicateDtos);
-        }
     }
 }

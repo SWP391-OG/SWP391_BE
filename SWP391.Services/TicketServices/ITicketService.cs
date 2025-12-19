@@ -25,9 +25,5 @@ namespace SWP391.Services.TicketServices
 
         // Common operations
         Task<TicketDto> GetTicketByCodeAsync(string ticketCode);
-        Task<List<TicketDto>> GetOverdueTicketsAsync();
-        Task<List<TicketDto>> GetOverdueTicketsByStaffIdAsync(int staffId);
-        Task<(bool HasDuplicates, List<TicketDto> PotentialDuplicates)> CheckForDuplicatesAsync(CreateTicketRequestDto dto, int requesterId);
-        Task<(bool Success, string Message)> EscalateTicketAsync(string ticketCode, int adminId);
     }
 }

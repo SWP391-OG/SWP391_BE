@@ -96,10 +96,6 @@ namespace SWP391.Services.TicketServices
         public Task<TicketDto> GetTicketByCodeAsync(string ticketCode)
             => _queryService.GetTicketByCodeAsync(ticketCode);
 
-        public Task<(bool HasDuplicates, List<TicketDto> PotentialDuplicates)> CheckForDuplicatesAsync(
-            CreateTicketRequestDto dto, int requesterId)
-            => _queryService.CheckForDuplicatesAsync(dto, requesterId);
-
         #endregion
     }
 }
