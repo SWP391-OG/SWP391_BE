@@ -4,8 +4,6 @@ using SWP391.Contracts.Ticket;
 using SWP391.Repositories.Interfaces;
 using SWP391.Services.NotificationServices;
 using SWP391.Services.TicketServices.Base;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SWP391.Services.TicketServices
 {
@@ -37,15 +35,6 @@ namespace SWP391.Services.TicketServices
         {
             var ticket = await UnitOfWork.TicketRepository.GetTicketByCodeAsync(ticketCode);
             return Mapper.Map<TicketDto>(ticket);
-        }
-
-        /// <summary>
-        /// Gets all overdue tickets (Admin view).
-        /// </summary>
-        public async Task<List<TicketDto>> GetOverdueTicketsAsync()
-        {
-            var tickets = await UnitOfWork.TicketRepository.GetOverdueTicketsAsync();
-            return Mapper.Map<List<TicketDto>>(tickets);
         }
 
         /// <summary>

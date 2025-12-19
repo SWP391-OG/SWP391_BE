@@ -540,57 +540,5 @@ namespace SWP391.WebAPI.Controllers
 
         #endregion
 
-        #region Overdue & Duplicate Detection
-
-        /// <summary>
-        /// Get all overdue tickets (Admin only)
-        /// </summary>
-        [HttpGet("overdue")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(ApiResponse<List<TicketDto>>), ApiStatusCode.OK)]
-        public async Task<IActionResult> GetOverdueTickets()
-        {
-            var tickets = await _applicationServices.TicketService.GetOverdueTicketsAsync();
-            return Ok(ApiResponse<List<TicketDto>>.SuccessResponse(tickets, ApiMessages.OVERDUE_TICKETS_RETRIEVED));
-        }
-
-        /// <summary>
-        /// Get my overdue tickets (Staff only)
-        /// </summary>
-        [HttpGet("my-overdue-tickets")]
-        [Authorize(Roles = "Staff")]
-        [ProducesResponseType(typeof(ApiResponse<List<TicketDto>>), ApiStatusCode.OK)]
-        public async Task<IActionResult> GetMyOverdueTickets()
-        {
-            var userId = GetCurrentUserId();
-            if (!userId.HasValue)
-                return HandleAuthenticationError();
-
-            var tickets = await _applicationServices.TicketService.GetOverdueTicketsByStaffIdAsync(userId.Value);
-            return Ok(ApiResponse<List<TicketDto>>.SuccessResponse(tickets, ApiMessages.OVERDUE_TICKETS_RETRIEVED));
-        }
-
-        /// <summary>
-        /// Escalate a ticket (Admin only)
-        /// </summary>
-        [HttpPatch("{ticketCode}/escalate")]
-        [Authorize(Roles = "Admin")]
-        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.OK)]
-        public async Task<IActionResult> EscalateTicket(string ticketCode)
-        {
-            var userId = GetCurrentUserId();
-            if (!userId.HasValue)
-                return HandleAuthenticationError();
-
-            var (success, message) = await _applicationServices.TicketService
-                .EscalateTicketAsync(ticketCode, userId.Value);
-
-            if (!success)
-                return BadRequest(ApiResponse<object>.ErrorResponse(message));
-
-            return Ok(ApiResponse<object>.SuccessResponse(null, message));
-        }
-
-        #endregion
     }
 }

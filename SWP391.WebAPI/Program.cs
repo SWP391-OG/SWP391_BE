@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,6 +36,27 @@ if (builder.Environment.IsDevelopment())
 // Configure DbContext with SQL Server
 builder.Services.AddDbContext<FPTechnicalContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Hangfire (SQL Server storage so it works when deployed)
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+    config.UseSimpleAssemblyNameTypeSerializer();
+    config.UseRecommendedSerializerSettings();
+    config.UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new SqlServerStorageOptions
+        {
+            CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+            SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+            QueuePollInterval = TimeSpan.FromSeconds(15),
+            UseRecommendedIsolationLevel = true,
+            DisableGlobalLocks = true
+        });
+});
+
+builder.Services.AddHangfireServer();
+
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
@@ -60,6 +83,9 @@ builder.Services.AddScoped<StudentTicketService>();
 builder.Services.AddScoped<AdminTicketService>();
 builder.Services.AddScoped<StaffTicketService>();
 builder.Services.AddScoped<TicketQueryService>();
+
+// Background job
+builder.Services.AddScoped<OverdueTicketJob>();
 
 // Register facade (orchestrator) - this implements ITicketService
 builder.Services.AddScoped<ITicketService, TicketService>();
@@ -184,9 +210,24 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Register recurring job using DI-based API for every 2 hours
+using (var scope = app.Services.CreateScope())
+{
+    var recurringJobs = scope.ServiceProvider.GetRequiredService<IRecurringJobManager>();
+
+    recurringJobs.AddOrUpdate<OverdueTicketJob>(
+        "process-overdue-tickets",
+        job => job.ProcessOverdueTicketsAsync(),
+        "0 */2 * * *",
+        new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+}
+
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Enable Hangfire dashboard
+app.UseHangfireDashboard("/hangfire");
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -198,4 +239,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 app.Run();

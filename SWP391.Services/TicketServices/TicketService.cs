@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using SWP391.Contracts.Common;
+﻿using SWP391.Contracts.Common;
 using SWP391.Contracts.Ticket;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SWP391.Services.TicketServices
 {
@@ -99,9 +95,6 @@ namespace SWP391.Services.TicketServices
 
         public Task<TicketDto> GetTicketByCodeAsync(string ticketCode)
             => _queryService.GetTicketByCodeAsync(ticketCode);
-
-        public Task<List<TicketDto>> GetOverdueTicketsAsync()
-            => _queryService.GetOverdueTicketsAsync();
 
         public Task<(bool HasDuplicates, List<TicketDto> PotentialDuplicates)> CheckForDuplicatesAsync(
             CreateTicketRequestDto dto, int requesterId)
