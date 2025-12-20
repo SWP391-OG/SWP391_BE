@@ -8,9 +8,11 @@ using System.Security.Claims;
 
 namespace SWP391.WebAPI.Controllers
 {
+    /// <summary>
+    /// API controller for managing users
+    /// </summary>
     [Route("api/[controller]")]
-    [ApiController]
-
+    [ApiController]   
     public class UserController : ControllerBase
     {
         private readonly IApplicationServices _applicationServices;
@@ -63,11 +65,8 @@ namespace SWP391.WebAPI.Controllers
         /// <summary>
         /// Get user profile
         /// </summary>
-        /// <param name="id">The user ID</param>
         /// <response code="200">Returns the user.</response>
-        /// <response code="400">Invalid user ID.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Only admins can access this.</response>
         /// <response code="404">User not found.</response>
         [HttpGet("profile")]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), ApiStatusCode.OK)]
@@ -79,6 +78,10 @@ namespace SWP391.WebAPI.Controllers
         public async Task<IActionResult> GetProfileByUseCode()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+            {
+                return Unauthorized(ApiResponse<object>.ErrorResponse("Unauthorized"));
+            }
             var user = await _applicationServices.UserService.GetUseProfileByUserIdAsync(int.Parse(userIdClaim));
 
             if (user == null)
@@ -96,7 +99,6 @@ namespace SWP391.WebAPI.Controllers
         /// <response code="200">Returns the user.</response>
         /// <response code="400">Invalid user ID.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Only admins can access this.</response>
         /// <response code="404">User not found.</response>
         [HttpPut("profile")]
         [ProducesResponseType(typeof(ApiResponse<UserDto>), ApiStatusCode.OK)]
@@ -107,7 +109,13 @@ namespace SWP391.WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateUserProfile(UserUpdateProfileDto userDto)
         {
+             if (userDto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("User data is required"));
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+             if (userIdClaim == null)
+                return Unauthorized(ApiResponse<object>.ErrorResponse("Unauthorized"));
+            
             var (success, message) = await _applicationServices.UserService.UpdateProfileUserAsync(int.Parse(userIdClaim), userDto);
 
             if (!success)
@@ -138,6 +146,9 @@ namespace SWP391.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateDto userDto)
         {
+             if (userDto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("User data is required"));
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(
@@ -156,7 +167,7 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing user 
+        /// Update an existing user (admin only)
         /// </summary>
         /// <param name="userId">The user ID to update</param>
         /// <param name="userDto">User update data</param>
@@ -174,7 +185,12 @@ namespace SWP391.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserUpdateDto userDto)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId <= 0)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Invalid user ID"));
+
+            if (userDto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("User data is required"));
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(
@@ -232,7 +248,7 @@ namespace SWP391.WebAPI.Controllers
         //}
 
         /// <summary>
-        /// Update an existing user 
+        /// Update an existing user (admin only)
         /// </summary>
         /// <param name="dto">User update data</param>
         /// <response code="200">User updated successfully.</response>
@@ -248,24 +264,14 @@ namespace SWP391.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUserStatus(UserStatusUpdateDto dto)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ApiResponse<object>.ErrorResponse(
-                    "Invalid request data",
-                    ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)).ToList()));
-            }
+        {  
+             if (dto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Status data is required"));
 
             var (success, message) = await _applicationServices.UserService.UpdateUserStatusAsync(dto);
 
-            if (!success)
-            {
-                if (message == "User not found")
-                    return NotFound(ApiResponse<object>.ErrorResponse(message));
-
+          if (!success)
                 return BadRequest(ApiResponse<object>.ErrorResponse(message));
-            }
 
             return Ok(ApiResponse<object>.SuccessResponse(null, message));
         }

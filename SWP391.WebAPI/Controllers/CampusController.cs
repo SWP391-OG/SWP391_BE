@@ -8,6 +8,9 @@ using SWP391.WebAPI.Constants;
 
 namespace SWP391.WebAPI.Controllers
 {
+    /// <summary>
+    /// API controller for managing campuses and their locations
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CampusController : ControllerBase
@@ -23,6 +26,8 @@ namespace SWP391.WebAPI.Controllers
         /// Get all campuses
         /// </summary>
         /// <response code="200">Returns all campuses.</response>
+        /// <response code="404">No campuses found.</response>
+        /// <response code="401">Unauthorized</response>
         /// <response code="404">No campuses found.</response>
         [HttpGet]
         [ProducesResponseType(typeof(ApiResponse<List<CampusDto>>), ApiStatusCode.OK)]
@@ -46,12 +51,13 @@ namespace SWP391.WebAPI.Controllers
         /// <param name="campusCode">The campus code</param>
         /// <response code="200">Returns the campus.</response>
         /// <response code="400">Invalid campus code.</response>
+        /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="404">Campus not found.</response>
         [HttpGet("{campusCode}")]
         [ProducesResponseType(typeof(ApiResponse<CampusDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
-        [Authorize]
         public async Task<IActionResult> GetCampusByCode(string campusCode)
         {
             if (string.IsNullOrWhiteSpace(campusCode))
