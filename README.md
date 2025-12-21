@@ -12,6 +12,7 @@ Provides RESTful APIs for **authentication**, **user/role management**, **campus
 - **JWT Bearer Authentication** (+ Cookie scheme configured)
 - **Swagger / OpenAPI**
 - **AutoMapper**
+- **Hangfire** (background job processing for overdue tickets)
 
 ---
 
@@ -62,7 +63,7 @@ Swagger is configured with a **Bearer** security scheme (paste token only; no `B
   - Create ticket
   - Update own **NEW** ticket
   - Cancel own **NEW** ticket (soft-cancel)
-  - View own tickets
+  - View own tickets (with pagination/filtering)
   - Provide feedback for **RESOLVED** ticket (closes ticket)
 
 - **Admin**
@@ -71,18 +72,19 @@ Swagger is configured with a **Bearer** security scheme (paste token only; no `B
     - Auto-assign (least workload)
     - Manual assign (specific staff)
   - Cancel any ticket (soft-cancel)
-  - View overdue tickets, escalate ticket
 
 - **Staff**
-  - View assigned tickets
+  - View assigned tickets (with pagination/filtering)
   - Update status:
     - `ASSIGNED` → `IN_PROGRESS`
     - `IN_PROGRESS` → `RESOLVED` (resolution notes required)
-  - View own overdue tickets
+
+- **Background Job (Hangfire)**
+  - Automatically marks overdue tickets as `OVERDUE` every 2 hours
 
 ---
 
-## API Endpoints (Key Routes)
+## API Endpoints
 
 Base URL default (Development):  
 - HTTPS: `https://localhost:7151`
@@ -91,60 +93,149 @@ Base URL default (Development):
 Swagger:
 - `GET /swagger`
 
-Auth (`api/auth`):
-- `POST /api/auth/register`
-- `POST /api/auth/verify-email`
-- `POST /api/auth/resend-verification`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `POST /api/auth/login`
+---
 
-Tickets (`api/Ticket`) *(requires auth)*:
-- `GET /api/Ticket` *(Admin)*
-- `GET /api/Ticket/{ticketCode}`
-- `GET /api/Ticket/my-tickets` *(Student)*
-- `GET /api/Ticket/my-assigned-tickets` *(Staff)*
-- `POST /api/Ticket` *(Student)*
-- `PUT /api/Ticket/{ticketCode}` *(Student)*
-- `PATCH /api/Ticket/{ticketCode}/status` *(Staff)*
-- `PATCH /api/Ticket/{ticketCode}/assign` *(Admin)*
-- `PATCH /api/Ticket/{ticketCode}/assign/manual` *(Admin)*
-- `PATCH /api/Ticket/{ticketCode}/feedback` *(Student)*
-- `DELETE /api/Ticket/{ticketCode}` *(Student)*
-- `DELETE /api/Ticket/{ticketCode}/cancel` *(Admin)*
-- `GET /api/Ticket/overdue` *(Admin)*
-- `GET /api/Ticket/my-overdue-tickets` *(Staff)*
-- `PATCH /api/Ticket/{ticketCode}/escalate` *(Admin)*
+### Authentication (`api/auth`)
 
-Master data:
-- Locations (`api/Location`)
-  - `GET /api/Locations` *(authenticated)*
-  - `GET /api/Location/{locationCode}` *(authenticated)*
-  - `GET /api/Location/get-by/{campusCode}` *(authenticated)*
-  - `POST /api/Location` *(Admin)*
-  - `PUT /api/Location/{locationId}` *(Admin)*
-  - `PATCH /api/Location/status` *(Admin)*
-  - `DELETE /api/Location/{locationId}` *(Admin)*
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/api/auth/register` | Register new user account | No |
+| `POST` | `/api/auth/verify-email` | Verify email with code | No |
+| `POST` | `/api/auth/resend-verification` | Resend verification code | No |
+| `POST` | `/api/auth/forgot-password` | Request password reset | No |
+| `POST` | `/api/auth/reset-password` | Reset password with code | No |
+| `POST` | `/api/auth/login` | Login and get JWT token | No |
 
-- Departments (`api/Department`)
-  - `GET /api/Departments` *(authenticated)*
-  - `GET /api/Department/{departmentCode}` *(authenticated)*
-  - `POST /api/Department` *(Admin)*
-  - `PUT /api/Department/{departmentId}` *(Admin)*
-  - `PATCH /api/Department/status` *(Admin)*
-  - `DELETE /api/Department/{departmentId}` *(Admin)*
+---
 
-- Categories (`api/Category`)
-  - `GET /api/Category` *(authenticated)*
-  - `GET /api/Category/{categoryCode}` *(authenticated)*
-  - `POST /api/Category` *(Admin)*
-  - `PUT /api/Category/{categoryId}` *(Admin)*
-  - `PATCH /api/Category/status` *(Admin)*
-  - `DELETE /api/Category/{categoryId}` *(Admin)*
+### Tickets (`api/Ticket`)
 
-- Roles (`api/Role`) *(Admin-only)*
+**All ticket endpoints require authentication.**
 
-> Note: additional controllers exist (e.g., users/notifications/campus) per the solution structure.
+#### Query Endpoints (GET)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/Ticket` | Admin | Get all tickets with pagination and filtering |
+| `GET` | `/api/Ticket/{ticketCode}` | All | Get specific ticket by code |
+| `GET` | `/api/Ticket/my-tickets` | Student | Get tickets created by current student |
+| `GET` | `/api/Ticket/my-assigned-tickets` | Staff | Get tickets assigned to current staff |
+
+#### Create Endpoints (POST)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/Ticket` | Student | Create new ticket |
+
+#### Update Endpoints (PUT)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `PUT` | `/api/Ticket/{ticketCode}` | Student | Update own NEW ticket details |
+
+#### Workflow Endpoints (PATCH)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `PATCH` | `/api/Ticket/{ticketCode}/status` | Staff | Update ticket status (ASSIGNED → IN_PROGRESS → RESOLVED) |
+| `PATCH` | `/api/Ticket/{ticketCode}/assign` | Admin | Auto-assign ticket to staff with least workload |
+| `PATCH` | `/api/Ticket/{ticketCode}/assign/manual` | Admin | Manually assign ticket to specific staff |
+| `PATCH` | `/api/Ticket/{ticketCode}/feedback` | Student | Provide feedback for RESOLVED ticket |
+
+#### Delete/Cancel Endpoints (DELETE)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `DELETE` | `/api/Ticket/{ticketCode}` | Student | Cancel own NEW ticket (soft delete) |
+| `DELETE` | `/api/Ticket/{ticketCode}/cancel` | Admin | Cancel any ticket (soft delete) |
+
+---
+
+### Users (`api/User`)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/User` | Admin | Get all users |
+| `GET` | `/api/User/profile` | All | Get current user's profile |
+| `PUT` | `/api/User/profile` | All | Update current user's profile |
+| `POST` | `/api/User` | Admin | Create new user |
+| `PUT` | `/api/User/{userId}` | Admin | Update user by ID |
+| `PATCH` | `/api/User/status` | Admin | Update user status (ACTIVE/INACTIVE) |
+
+---
+
+### Notifications (`api/Notification`)
+
+**All notification endpoints require authentication.**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/Notification/my-notifications` | Get current user's notifications with pagination |
+| `GET` | `/api/Notification/unread-count` | Get unread notification count |
+| `PATCH` | `/api/Notification/{notificationId}/mark-read` | Mark specific notification as read |
+| `PATCH` | `/api/Notification/mark-all-read` | Mark all notifications as read |
+
+---
+
+### Campuses (`api/Campus`)
+
+**All campus endpoints require authentication.**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/Campus` | Get all campuses |
+| `GET` | `/api/Campus/{campusCode}` | Get campus by code |
+
+---
+
+### Locations (`api/Location`)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/Locations` | All | Get all locations (admins see all, others see active only) |
+| `GET` | `/api/Location/{locationCode}` | All | Get location by code |
+| `GET` | `/api/Location/get-by/{campusCode}` | All | Get locations by campus code |
+| `POST` | `/api/Location` | Admin | Create new location |
+| `PUT` | `/api/Location/{locationId}` | Admin | Update location |
+| `PATCH` | `/api/Location/status` | Admin | Update location status (ACTIVE/INACTIVE) |
+
+---
+
+### Departments (`api/Department`)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/Departments` | All | Get all departments (admins see all, others see active only) |
+| `GET` | `/api/Department/{departmentCode}` | All | Get department by code |
+| `POST` | `/api/Department` | Admin | Create new department |
+| `PUT` | `/api/Department/{departmentId}` | Admin | Update department |
+| `PATCH` | `/api/Department/status` | Admin | Update department status (ACTIVE/INACTIVE) |
+
+---
+
+### Categories (`api/Category`)
+
+| Method | Endpoint | Role | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/Category` | All | Get all categories (admins see all, others see active only) |
+| `GET` | `/api/Category/{categoryCode}` | All | Get category by code |
+| `POST` | `/api/Category` | Admin | Create new category |
+| `PUT` | `/api/Category/{categoryId}` | Admin | Update category |
+| `PATCH` | `/api/Category/status` | Admin | Update category status (ACTIVE/INACTIVE) |
+
+---
+
+### Roles (`api/Role`)
+
+**All role endpoints require Admin authentication.**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/Role` | Get all roles |
+| `GET` | `/api/Role/{roleName}` | Get role by name |
+| `POST` | `/api/Role` | Create new role |
+| `PUT` | `/api/Role` | Update role |
+| `DELETE` | `/api/Role/{roleId}` | Delete role |
 
 ---
 
@@ -161,6 +252,14 @@ Required configuration:
 - `Jwt:Audience` *(optional validation if empty)*
 - `Jwt:ExpiresMinutes`
 
+### Email (SMTP)
+Required for authentication emails:
+- `Email:Smtp:Host`
+- `Email:Smtp:Port`
+- `Email:Smtp:Username`
+- `Email:Smtp:Password`
+- `Email:Smtp:From`
+
 ### Secrets (Development)
 In Development environment, the API loads:
 - `SWP391.WebAPI/Secrets/appsettings.Secret.json` *(optional)*
@@ -169,14 +268,30 @@ Recommended: store local secrets (connection string, JWT key, SMTP) there and ke
 
 ---
 
+## Background Jobs (Hangfire)
+
+The system uses **Hangfire** for background job processing:
+
+- **Overdue Ticket Job**: Runs every 2 hours (cron: `0 */2 * * *`)
+  - Automatically marks tickets as `OVERDUE` when they exceed their SLA deadline
+  - Only affects tickets in `ASSIGNED` or `IN_PROGRESS` status
+  - Adds system notes explaining the cancellation
+
+**Hangfire Dashboard**: Available at `/hangfire` (requires authentication in production)
+
+---
+
 ## Running Locally (Visual Studio)
 
 1. Ensure **.NET 8 SDK** is installed.
 2. Set startup project to `SWP391.WebAPI`.
-3. Configure SQL Server + `DefaultConnection`.
-4. Run the project.
-5. Open Swagger:
-   - `https://localhost:7151/swagger`
+3. Configure `appsettings.Secret.json` with:
+   - SQL Server connection string
+   - JWT settings
+   - SMTP settings for email
+4. Run the project (F5).
+5. Open Swagger: `https://localhost:7151/swagger`
+6. View Hangfire Dashboard: `https://localhost:7151/hangfire`
 
 ---
 
@@ -189,4 +304,4 @@ See `LICENSE.txt`.
 
 ## Contributing
 
-Contributions are welcome. Please follow the repository’s coding standards and submit PRs with clear context and test steps.
+Contributions are welcome. Please follow the repository's coding standards and submit PRs with clear context and test steps.
