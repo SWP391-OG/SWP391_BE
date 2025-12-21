@@ -197,7 +197,7 @@ namespace SWP391.Repositories.Repositories
         #region Overdue & Duplicate Detection
 
         /// <summary>
-        /// Get all overdue tickets (ResolveDeadline passed and status is ASSIGNED or IN_PROGRESS)
+        /// Get all overdue tickets (ResolveDeadline passed and status is NEW, ASSIGNED or IN_PROGRESS)
         /// </summary>
         public async Task<List<Ticket>> GetOverdueTicketsAsync()
         {
@@ -210,7 +210,7 @@ namespace SWP391.Repositories.Repositories
                 .Include(t => t.Category)
                 .Where(t => t.ResolveDeadline.HasValue &&
                             t.ResolveDeadline.Value < now &&
-                            (t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
+                            (t.Status == "NEW" || t.Status == "ASSIGNED" || t.Status == "IN_PROGRESS"))
                 .OrderBy(t => t.ResolveDeadline)
                 .ToListAsync();
         }

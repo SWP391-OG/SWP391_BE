@@ -34,19 +34,32 @@ namespace SWP391.Services.TicketServices
 
             foreach (var ticket in overdueTickets)
             {
-                // Safety: only operate on ASSIGNED/IN_PROGRESS (repository already filters this)
-                if (ticket.Status != "ASSIGNED" && ticket.Status != "IN_PROGRESS")
+                // Process NEW, ASSIGNED, and IN_PROGRESS tickets that are overdue
+                if (ticket.Status != "NEW" && ticket.Status != "ASSIGNED" && ticket.Status != "IN_PROGRESS")
                     continue;
 
                 ticket.Status = OverdueStatus;
                 ticket.ClosedAt = now;
 
+                // Add context based on original status
+                var statusContext = ticket.Status switch
+                {
+                    "NEW" => "Ticket was never assigned to staff.",
+                    "ASSIGNED" => "Staff did not start working on the ticket.",
+                    "IN_PROGRESS" => "Staff did not complete the ticket in time.",
+                    _ => ""
+                };
+
                 ticket.Note = string.IsNullOrWhiteSpace(ticket.Note)
-                    ? $"{NotePrefix} {reason}"
-                    : $"{ticket.Note}\n{NotePrefix} {reason}";
+                    ? $"{NotePrefix} {reason} {statusContext}"
+                    : $"{ticket.Note}\n{NotePrefix} {reason} {statusContext}";
 
                 _unitOfWork.TicketRepository.Update(ticket);
                 updatedCount++;
+
+                _logger.LogWarning(
+                    "Ticket {TicketCode} marked as OVERDUE. Original status: {OriginalStatus}, Deadline: {Deadline}",
+                    ticket.TicketCode, ticket.Status, ticket.ResolveDeadline);
             }
 
             await _unitOfWork.SaveChangesWithTransactionAsync();
