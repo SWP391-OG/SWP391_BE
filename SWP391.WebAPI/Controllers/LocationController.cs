@@ -9,6 +9,9 @@ using System.Security.Claims;
 
 namespace SWP391.WebAPI.Controllers
 {
+    /// <summary>
+    /// API controller for managing locations
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LocationController : ControllerBase
@@ -21,15 +24,14 @@ namespace SWP391.WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get all rooms 
+        /// Get all locations (admin sees all, others see active only)
         /// </summary>
-        /// <param >Search and pagination parameters (query string)</param>
-        /// <response code="200">Returns paginated location.</response>
-        /// <response code="400">Invalid request parameters.</response>
+        /// <response code="200">Returns all locations.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
         /// <response code="403">Forbidden - Insufficient permissions.</response>
+        /// <response code="404">No locations found.</response>
         [HttpGet("/api/Locations")]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<LocationDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
@@ -58,22 +60,26 @@ namespace SWP391.WebAPI.Controllers
             return Ok(ApiResponse<List<LocationDto>>.SuccessResponse(locations, "Locations retrieved successfully"));
         }
 
-        /// <summary>
-        /// Get room by code
+         /// <summary>
+        /// Get location by code
         /// </summary>
-        /// <param name="locationCode">Search and pagination parameters (query string)</param>
-        /// <response code="200">Returns paginated location.</response>
-        /// <response code="400">Invalid request parameters.</response>
+        /// <param name="locationCode">The location code</param>
+        /// <response code="200">Returns the location.</response>
+        /// <response code="400">Invalid location code.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Insufficient permissions.</response>
+        /// <response code="404">Location not found.</response>
         [HttpGet("{locationCode}")]
-        [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
+        [ProducesResponseType(typeof(ApiResponse<LocationDto>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize]
         public async Task<IActionResult> GetByLocationCode(string locationCode)
         {
+            if (string.IsNullOrWhiteSpace(locationCode))
+                return BadRequest(ApiResponse<object>.ErrorResponse("Location code is required"));
+
             var locations = await _applicationServices.LocationService.GetByLocationCodeAsync(locationCode);
             if (locations == null)
             {
@@ -97,6 +103,9 @@ namespace SWP391.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateLocation(LocationRequestDto dto)
         {
+             if (dto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Location data is required"));
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ApiResponse<object>.ErrorResponse(
@@ -116,21 +125,30 @@ namespace SWP391.WebAPI.Controllers
         }
 
 
-        /// <summary>
-        /// Update room 
+       /// <summary>
+        /// Update location information (admin only)
         /// </summary>
-        ///  /// <response code="200">Returns paginated location .</response>
-        /// <response code="400">Invalid request parameters.</response>
+        /// <param name="locationId">Location ID</param>
+        /// <param name="dto">Location update data</param>
+        /// <response code="200">Location updated successfully.</response>
+        /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Insufficient permissions.</response>
+        /// <response code="403">Forbidden - Only admins can update locations.</response>
+        /// <response code="404">Location not found.</response>
         [HttpPut("{locationId}")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateLocation(int locationId, [FromBody] LocationRequestDto dto)
         {
+            if (locationId <= 0)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Invalid location ID"));
+
+            if (dto == null)
+                return BadRequest(ApiResponse<object>.ErrorResponse("Location data is required"));
 
             if (!ModelState.IsValid)
             {
@@ -151,18 +169,21 @@ namespace SWP391.WebAPI.Controllers
 
         }
 
-        /// <summary>
-        /// Update Location Status (ACTIVE or INACTIVE)
+         /// <summary>
+        /// Update location status (ACTIVE or INACTIVE)
         /// </summary>
-        /// <response code="200">Returns paginated location.</response>
-        /// <response code="400">Invalid request parameters.</response>
+        /// <param name="dto">Status update data</param>
+        /// <response code="200">Location status updated successfully.</response>
+        /// <response code="400">Invalid request data or business rule violation.</response>
         /// <response code="401">Unauthorized - Invalid authentication.</response>
-        /// <response code="403">Forbidden - Insufficient permissions.</response>
+        /// <response code="403">Forbidden - Only admins can update status.</response>
+        /// <response code="404">Location not found.</response>
         [HttpPatch("status")]
         [ProducesResponseType(typeof(ApiResponse<PaginatedResponse<LocationDto>>), ApiStatusCode.OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.BAD_REQUEST)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.UNAUTHORIZED)]
         [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.FORBIDDEN)]
+        [ProducesResponseType(typeof(ApiResponse<object>), ApiStatusCode.NOT_FOUND)]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateLocationStatus(LocationStatusUpdateDto dto)
         {
