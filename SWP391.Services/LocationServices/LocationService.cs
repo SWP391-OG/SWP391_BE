@@ -5,6 +5,9 @@ using SWP391.Repositories.Models;
 
 namespace SWP391.Services.LocationServices
 {
+    /// <summary>
+    /// Service for managing location operations
+    /// </summary>
     public class LocationService : ILocationService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -15,10 +18,15 @@ namespace SWP391.Services.LocationServices
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-
+        /// <summary>
+        /// Create a new location
+        /// </summary>
         public async Task<(bool Success, string Message, LocationDto Data)> CreateLocationAsync(LocationRequestDto dto)
         {
             // Validate required fields
+            if (dto == null)
+                return (false, "Location data cannot be null", null);
+
             if (string.IsNullOrWhiteSpace(dto.LocationCode))
                 return (false, "Location code is required", null);
 
@@ -62,44 +70,76 @@ namespace SWP391.Services.LocationServices
             return (true, "Location created successfully", locationDto);
         }
 
+        /// <summary>
+        /// Delete location (soft delete by marking as inactive)
+        /// </summary>
         public async Task<(bool Success, string Message)> DeleteLocationByIdAsync(int locationId)
         {
+             if (locationId <= 0)
+                return (false, "Invalid location ID");
+
             var existingCode = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
             if (existingCode == null)
                 return (false, "Location code doesn't exists");
+                
             existingCode.Status = "INACTIVE"; // Soft delete by setting status to Inactive
              _unitOfWork.LocationRepository.Update(existingCode);
             return (true, "Location deleted successfully");
         }
 
+        /// <summary>
+        /// Get all active locations
+        /// </summary>
         public async Task<List<LocationDto>> GetAllActiveLocationsAsync()
         {
             var locations = await _unitOfWork.LocationRepository.GetAllActiveLocationsAsync();
             return _mapper.Map<List<LocationDto>>(locations);
         }
 
-        // ✅ Load locations with Campus data
+        /// <summary>
+        /// Get all locations (active and inactive)
+        /// </summary>
         public async Task<List<LocationDto>> GetAllLocationsAsync()
         {
             var locations = await _unitOfWork.LocationRepository.GetAllLocationsWithCampusAsync();
             return _mapper.Map<List<LocationDto>>(locations);
         }
 
-        // ✅ Load location with Campus data
+        /// <summary>
+        /// Get location by location code
+        /// </summary>
         public async Task<LocationDto> GetByLocationCodeAsync(string locationCode)
         {
+              if (string.IsNullOrWhiteSpace(locationCode))
+                return null;
+
             var location = await _unitOfWork.LocationRepository.GetLocationByCodeWithCampusAsync(locationCode);
-            return _mapper.Map<LocationDto>(location);
+              return location == null ? null : _mapper.Map<LocationDto>(location);
         }
 
+        /// <summary>
+        /// Get locations by campus code
+        /// </summary>
         public async Task<List<LocationDto>> GetLocationsByCampusCodeAsync(string campusCode)
         {
+            if (string.IsNullOrWhiteSpace(campusCode))
+                return new List<LocationDto>();
+
            var locations =  await _unitOfWork.LocationRepository.GetLocationsByCampusCodeAsync(campusCode);
-            return _mapper.Map<List<LocationDto>>(locations);
+            return locations == null ? null : _mapper.Map<List<LocationDto>>(locations);
         }
 
+        /// <summary>
+        /// Update location information
+        /// </summary>
         public async Task<(bool Success, string Message)> UpdateLocationAsync(int locationId, LocationRequestDto dto)
         {
+            if (locationId <= 0)
+                return (false, "Invalid location ID");
+
+            if (dto == null)
+                return (false, "Location data cannot be null");
+
             var location = await _unitOfWork.LocationRepository.GetByIdAsync(locationId);
             if (location == null)
             {
@@ -116,23 +156,32 @@ namespace SWP391.Services.LocationServices
                 location.CampusId = dto.CampusId;
             }
 
+             // Update fields
             if (!string.IsNullOrWhiteSpace(dto.LocationName))
                 location.LocationName = dto.LocationName;
+
             if (!string.IsNullOrWhiteSpace(dto.LocationCode))
                 location.LocationCode = dto.LocationCode;
 
-            _unitOfWork.LocationRepository.Update(location);
+            await _unitOfWork.LocationRepository.UpdateAsync(location);
             await _unitOfWork.SaveChangesWithTransactionAsync();
 
             return (true, "Location updated successfully");
         }
-
+        
+        /// <summary>
+        /// Update location status
+        /// </summary>
         public async Task<(bool Success, string Message)> UpdateStatusLocationAsync(LocationStatusUpdateDto dto)
         {
-            if(dto.LocationId <= 0)
-            {
+            if (dto == null)
+                return (false, "Status update request cannot be null");
+
+            if (dto.LocationId <= 0)
                 return (false, "Invalid location ID");
-            }
+
+            if (string.IsNullOrWhiteSpace(dto.Status))
+                return (false, "Status cannot be empty");
 
             var location = await _unitOfWork.LocationRepository.GetByIdAsync(dto.LocationId);
 
@@ -140,9 +189,9 @@ namespace SWP391.Services.LocationServices
             {
                 return (false, "Location not found");
             }
+
             location.Status = dto.Status;
-            _unitOfWork.LocationRepository.Update(location);
-         
+            await _unitOfWork.LocationRepository.UpdateAsync(location);
             return (true, "Location status updated successfully");
         }
 
